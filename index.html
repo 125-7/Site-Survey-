@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Site Survey</title>
+
+<style>
+body { font-family: Arial; padding: 15px; background:#f5f5f5; }
+input, textarea, button {
+  width:100%; padding:10px; margin:5px 0;
+}
+button { background:#2e7d32; color:white; border:none; }
+table { width:100%; border-collapse: collapse; margin-top:10px; background:white; }
+th, td { border:1px solid #ccc; padding:6px; text-align:center; }
+.edit { background:orange; }
+.delete { background:red; }
+.badge { color:red; font-weight:bold; }
+</style>
+
+</head>
+<body>
+
+<h2>Site Survey</h2>
+
+<form id="form">
+<input id="siteId" placeholder="Site ID" required>
+<input id="siteName" placeholder="Site Name" required>
+<input id="ip" placeholder="IP Address">
+<input id="mux" placeholder="MUX Type">
+<input id="media" placeholder="Media Type">
+<textarea id="remarks" placeholder="Remarks"></textarea>
+
+<button type="submit">Save / Update</button>
+</form>
+
+<button onclick="exportCSV()">Export Excel</button>
+<button onclick="generateReport()">Generate Report</button>
+
+<table>
+<thead>
+<tr>
+<th>ID</th><th>Name</th><th>IP</th><th>MUX</th><th>Media</th>
+<th>Lat</th><th>Long</th><th>Date</th><th>Time</th>
+<th>Remarks</th><th>Status</th><th>Map</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="table"></tbody>
+</table>
+
+<script>
+
+let data = JSON.parse(localStorage.getItem("data")) || [];
+let editIndex = -1;
+
+// GPS
+function getLocation(){
+ return new Promise((res,rej)=>{
+  if(!navigator.geolocation){
+    alert("GPS not supported");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+   pos=>res(pos.coords),
+   err=>{
+     alert("Please enable Location (GPS) manually in your phone settings.");
+     rej(err);
+   },
+   {enableHighAccuracy:true}
+  );
+ });
+}
+
+// SAVE / UPDATE
+document.getElementById("form").addEventListener("submit", async e=>{
+ e.preventDefault();
+
+ try{
+  const coords = await getLocation();
+  const now = new Date();
+
+  let entry = {
+   siteId: siteId.value,
+   siteName: siteName.value,
+   ip: ip.value,
+   mux: mux.value,
+   media: media.value,
+   remarks: remarks.value,
+   lat: coords.latitude.toFixed(6),
+   long: coords.longitude.toFixed(6),
+   date: now.toLocaleDateString(),
+   time: now.toLocaleTimeString(),
+   map: `https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`,
+   edited: (editIndex !== -1) ? "Edited" : ""
+  };
+
+  if(editIndex === -1){
+   data.push(entry);
+  } else {
+   data[editIndex] = entry;
+   editIndex = -1;
+  }
+
+  localStorage.setItem("data", JSON.stringify(data));
+  form.reset();
+  show();
+
+ }catch{}
+});
+
+// DISPLAY
+function show(){
+ let html="";
+ data.forEach((d,i)=>{
+  html += `
+  <tr>
+  <td>${d.siteId}</td>
+  <td>${d.siteName}</td>
+  <td>${d.ip}</td>
+  <td>${d.mux}</td>
+  <td>${d.media || ''}</td>
+  <td>${d.lat}</td>
+  <td>${d.long}</td>
+  <td>${d.date}</td>
+  <td>${d.time}</td>
+  <td>${d.remarks || ''}</td>
+  <td>${d.edited ? '<span class="badge">Edited</span>' : ''}</td>
+  <td><a href="${d.map}" target="_blank">Map</a></td>
+  <td>
+    <button class="edit" onclick="edit(${i})">Edit</button>
+    <button class="delete" onclick="del(${i})">Del</button>
+  </td>
+  </tr>`;
+ });
+
+ document.getElementById("table").innerHTML = html;
+}
+
+// EDIT
+function edit(i){
+ let d = data[i];
+ siteId.value = d.siteId;
+ siteName.value = d.siteName;
+ ip.value = d.ip;
+ mux.value = d.mux;
+ media.value = d.media || '';
+ remarks.value = d.remarks || '';
+ editIndex = i;
+}
+
+// DELETE
+function del(i){
+ if(confirm("Delete this entry?")){
+  data.splice(i,1);
+  localStorage.setItem("data", JSON.stringify(data));
+  show();
+ }
+}
+
+// EXPORT CSV
+function exportCSV(){
+ let csv="ID,Name,IP,MUX,Media,Lat,Long,Date,Time,Remarks,Status\n";
+
+ data.forEach(d=>{
+  csv += `${d.siteId},${d.siteName},${d.ip},${d.mux},${d.media},${d.lat},${d.long},${d.date},${d.time},"${d.remarks}",${d.edited}\n`;
+ });
+
+ let blob=new Blob([csv]);
+ let a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="site_report.csv";
+ a.click();
+}
+
+// REPORT
+function generateReport(){
+ let win=window.open("");
+
+ win.document.write(`
+ <html><body>
+ <h2>Site Report</h2>
+ <p>Total Sites: ${data.length}</p>
+
+ <table border=1>
+ <tr>
+ <th>ID</th><th>Name</th><th>IP</th><th>MUX</th><th>Media</th>
+ <th>Lat</th><th>Long</th><th>Remarks</th><th>Status</th>
+ </tr>
+
+ ${data.map(d=>`
+ <tr>
+ <td>${d.siteId}</td>
+ <td>${d.siteName}</td>
+ <td>${d.ip}</td>
+ <td>${d.mux}</td>
+ <td>${d.media}</td>
+ <td>${d.lat}</td>
+ <td>${d.long}</td>
+ <td>${d.remarks || ''}</td>
+ <td>${d.edited}</td>
+ </tr>
+ `).join("")}
+
+ </table>
+ </body></html>
+ `);
+
+ win.document.close();
+ win.print();
+}
+
+// LOAD
+show();
+
+</script>
+
+</body>
+</html>
