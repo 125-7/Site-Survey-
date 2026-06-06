@@ -211,7 +211,26 @@ function generateReport(){
 
 // LOAD
 show();
+// --- START OF FIREBASE SETUP ---
+// 1. Import Firebase libraries dynamically
+var fbAppScript = document.createElement('script');
+fbAppScript.src = "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js";
+document.head.appendChild(fbAppScript);
 
+var fbDbScript = document.createElement('script');
+fbDbScript.src = "https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js";
+document.head.appendChild(fbDbScript);
+
+// 2. Initialize database once libraries load
+fbDbScript.onload = function() {
+    const firebaseConfig = {
+      databaseURL: "https://site-survey-app-afb16-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    window.database = firebase.database();
+    console.log("Firebase database is successfully connected!");
+};
+// --- END OF FIREBASE SETUP ---
 </script>
 
 </body>
