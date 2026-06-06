@@ -49,8 +49,53 @@ th, td { border:1px solid #ccc; padding:6px; text-align:center; }
 
 <script>
 
-let data = JSON.parse(localStorage.getItem("data")) || [];
+let data = [];
 let editIndex = -1;
+
+// --- STEP A: LIVE CLOUD SYNC FOR ALL USERS ---
+// This listens to your Firebase cloud database. The second anyone saves 
+// a site survey, it updates the list instantly for all 3 to 4 people.
+function listenToCloudDatabase() {
+    if (!window.database) {
+        // Wait a split second if Firebase is still booting up
+        setTimeout(listenToCloudDatabase, 200);
+        return;
+    }
+    
+    window.database.ref('site_surveys').on('value', (snapshot) => {
+        data = [];
+        if (snapshot.exists()) {
+            const cloudData = snapshot.val();
+            // Convert the cloud database object back into your standard array format
+            for (let key in cloudData) {
+                data.push(cloudData[key]);
+            }
+        }
+        // Call your original display function to update the table on everyone's screen
+        if (typeof show === "function") { 
+            show(); 
+        }
+    });
+}
+listenToCloudDatabase();
+
+// --- STEP B: CROSS-USER MATCH CHECKER ---
+// This automatically alerts the operator if another teammate already entered the Site ID!
+function checkDuplicateID(inputField) {
+    const enteredID = inputField.value.trim().toUpperCase();
+    if (!enteredID) return;
+
+    // Check if that ID matches a record entered by anyone else in the group
+    const match = data.find(item => item.id && item.id.toUpperCase() === enteredID);
+    
+    if (match) {
+        alert(`⚠️ MATCH FOUND!\nThis site ID (${enteredID}) was already submitted by another team member.\n\nMatching Node Details:\nName: ${match.name}\nIP: ${match.ip}\nRemarks: ${match.remarks || 'No remarks recorded'}`);
+        
+        // Optional: Auto-fill the existing data fields for them to look at
+        document.getElementById('id').value = match.id || ''; // Adjust IDs if your inputs use different field names
+        if(document.getElementById('name')) document.getElementById('name').value = match.name || '';
+    }
+}
 
 // GPS
 function getLocation(){
@@ -93,17 +138,29 @@ document.getElementById("form").addEventListener("submit", async e=>{
    map: `https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`,
    edited: (editIndex !== -1) ? "Edited" : ""
   };
-
-  if(editIndex === -1){
-   data.push(entry);
-  } else {
-   data[editIndex] = entry;
-   editIndex = -1;
-  }
-
-  localStorage.setItem("data", JSON.stringify(data));
-  form.reset();
-  show();
+// --- CLOUD DATABASE SAVE LOGIC ---
+    if (editIndex === -1) {
+        // If it's a new entry, save it using its unique Site ID
+        window.database.ref('site_surveys/' + entry.siteId).set(entry, (error) => {
+            if (error) {
+                alert("Error saving to cloud: " + error.message);
+            } else {
+                alert("✅ Data saved to Cloud Database successfully!");
+                form.reset();
+            }
+        });
+    } else {
+        // If updating an existing entry
+        window.database.ref('site_surveys/' + entry.siteId).update(entry, (error) => {
+            if (error) {
+                alert("Error updating cloud: " + error.message);
+            } else {
+                alert("✅ Cloud entry updated successfully!");
+                editIndex = -1;
+                form.reset();
+            }
+        });
+    }
 
  }catch{}
 });
