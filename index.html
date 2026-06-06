@@ -1,294 +1,425 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Site Survey</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Site Survey Matrix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .form-container { max-width: 750px; margin: 0 auto 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .form-row { display: flex; gap: 15px; margin-bottom: 12px; }
+        .form-group { flex: 1; display: flex; flex-direction: column; position: relative; }
+        label { margin-bottom: 5px; font-weight: bold; font-size: 13px; }
+        
+        input[type="text"] { padding: 8px 24px 8px 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        
+        .with-arrow::after {
+            content: "\25BC";
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            font-size: 10px;
+            color: #333;
+            pointer-events: none;
+        }
 
-<style>
-body { font-family: Arial; padding: 15px; background:#f5f5f5; }
-input, textarea, button {
-  width:100%; padding:10px; margin:5px 0;
-}
-button { background:#2e7d32; color:white; border:none; }
-table { width:100%; border-collapse: collapse; margin-top:10px; background:white; }
-th, td { border:1px solid #ccc; padding:6px; text-align:center; }
-.edit { background:orange; }
-.delete { background:red; }
-.badge { color:red; font-weight:bold; }
-</style>
-
+        .equip-header { margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #2e7d32; color: #2e7d32; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .equip-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; background: #f9f9f9; padding: 8px; border-radius: 4px; border: 1px dashed #ccc; }
+        .btn-circle { width: 32px; height: 32px; border-radius: 50%; border: none; color: white; font-weight: bold; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
+        .btn-add-row { background-color: #1e88e5; }
+        .btn-del-row { background-color: #d32f2f; }
+        
+        button.btn-main { padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; width: 100%; margin-top: 15px; font-size: 15px; }
+        .btn-save { background-color: #2e7d32; }
+        .btn-excel { background-color: #1b5e20; margin-top: 5px; }
+        
+        .search-box { width: 100%; padding: 12px; margin: 25px 0 10px 0; font-size: 15px; border: 2px solid #2e7d32; border-radius: 4px; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 13px; }
+        th { background-color: #e8f5e9; color: #1b5e20; }
+        
+        .btn-action { padding: 5px 10px; margin: 2px; border: none; border-radius: 3px; color: white; cursor: pointer; font-size: 12px; display: inline-block; text-decoration: none; font-weight: bold; }
+        .btn-edit { background-color: #ffb300; color: black; }
+        .btn-del { background-color: #d32f2f; }
+        .btn-map { background-color: #78909c; }
+        .equip-tag { display: block; background: #e1f5fe; color: #0288d1; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin: 3px 0; font-weight: bold; border: 1px solid #b3e5fc; font-family: monospace; }
+    </style>
 </head>
 <body>
 
-<h2>Site Survey</h2>
+<datalist id="siteNameSuggestions"></datalist>
+<datalist id="techNumberSuggestions"></datalist>
+<datalist id="mediaSuggestions"></datalist>
+<datalist id="tocoSuggestions"></datalist>
+<datalist id="nmtLocationSuggestions"></datalist>
+<datalist id="muxTypeSuggestions"></datalist>
+<datalist id="muxFullNameSuggestions"></datalist>
+<datalist id="muxNeIdSuggestions"></datalist>
+<datalist id="muxIpSuggestions"></datalist>
 
-<form id="form">
-<input id="siteId" placeholder="Site ID" required>
-<input id="siteName" placeholder="Site Name" required>
-<input id="ip" placeholder="IP Address">
-<input id="mux" placeholder="MUX Type">
-<input id="media" placeholder="Media Type">
-<textarea id="remarks" placeholder="Remarks"></textarea>
+<div class="form-container">
+    <h2 style="color: #2e7d32; margin-top:0; margin-bottom: 20px;">Master Site Survey Node Entry</h2>
+    <form id="surveyForm">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Site ID</label>
+                <input type="text" id="siteId" required placeholder="e.g. ORBRA-11">
+            </div>
+            <div class="form-group with-arrow">
+                <label>Technical Number</label>
+                <input type="text" id="techNumber" placeholder="e.g. TECH-4412" list="techNumberSuggestions">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group with-arrow">
+                <label>Site Name</label>
+                <input type="text" id="siteName" required list="siteNameSuggestions">
+            </div>
+            <div class="form-group with-arrow">
+                <label>Media</label>
+                <input type="text" id="media" required value="OWN" list="mediaSuggestions">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group with-arrow">
+                <label>TOCO Option</label>
+                <input type="text" id="toco" placeholder="Enter TOCO details" list="tocoSuggestions">
+            </div>
+            <div class="form-group with-arrow">
+                <label>NMT Location</label>
+                <input type="text" id="nmtLocation" placeholder="Enter NMT Location details" list="nmtLocationSuggestions">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Site Base Remarks</label>
+            <input type="text" id="remarks">
+        </div>
+        
+        <div class="equip-header">
+            <span>Rack Equipment Inventory Matrix</span>
+            <button type="button" class="btn-circle btn-add-row" onclick="addEquipmentRow()">+</button>
+        </div>
+        <div id="equipmentFieldsContainer">
+            </div>
 
-<button type="submit">Save / Update</button>
-</form>
+        <button type="submit" class="btn-main btn-save">Save / Update Master Database Node</button>
+        <button type="button" class="btn-main btn-excel" onclick="exportToExcel()">Export Data directly to Excel (.xls)</button>
+    </form>
+</div>
 
-<button onclick="exportCSV()">Export Excel</button>
-<button onclick="generateReport()">Generate Report</button>
+<input type="text" id="tableSearch" class="search-box" onkeyup="filterTable()" placeholder="🔍 Universal Search...">
 
-<table>
-<thead>
-<tr>
-<th>ID</th><th>Name</th><th>IP</th><th>MUX</th><th>Media</th>
-<th>Lat</th><th>Long</th><th>Date</th><th>Time</th>
-<th>Remarks</th><th>Status</th><th>Map</th><th>Action</th>
-</tr>
-</thead>
-<tbody id="table"></tbody>
+<table id="dataTable">
+    <thead>
+        <tr>
+            <th>Site ID</th>
+            <th>Technical No.</th>
+            <th>Site Name</th>
+            <th>Media</th>
+            <th>TOCO</th>
+            <th>NMT Location</th>
+            <th>Location Coordinates</th>
+            <th>Logged Date/Time</th>
+            <th>Active Hardware Array Components</th>
+            <th>Remarks</th>
+            <th style="width:140px;">Operations</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
 </table>
 
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
 <script>
+const firebaseConfig = {
+    databaseURL: "https://site-survey-app-afb16-default-rtdb.asia-southeast1.firebasedatabase.app/"
+};
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
 
-let data = [];
-let editIndex = -1;
+let dataArray = [];
+let editKey = null;
 
-// --- STEP A: LIVE CLOUD SYNC FOR ALL USERS ---
-// This listens to your Firebase cloud database. The second anyone saves 
-// a site survey, it updates the list instantly for all 3 to 4 people.
-function listenToCloudDatabase() {
-    if (!window.database) {
-        // Wait a split second if Firebase is still booting up
-        setTimeout(listenToCloudDatabase, 200);
-        return;
+// FIXED DYNAMIC ROW ENGINE
+function addEquipmentRow(typeVal = '', nameVal = '', neIdVal = '', ipVal = '') {
+    const container = document.getElementById("equipmentFieldsContainer");
+    const rowDiv = document.createElement("div");
+    rowDiv.className = "equip-row";
+    rowDiv.innerHTML = `
+        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-type" style="width:100%;" placeholder="MUX Type" value="${typeVal}" list="muxTypeSuggestions"></div>
+        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-fullname" style="width:100%;" placeholder="MUX Full Name" value="${nameVal}" list="muxFullNameSuggestions"></div>
+        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-neid" style="width:100%;" placeholder="MUX NE ID" value="${neIdVal}" list="muxNeIdSuggestions"></div>
+        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-ip" style="width:100%;" placeholder="MUX IP" value="${ipVal}" list="muxIpSuggestions"></div>
+        <button type="button" class="btn-circle btn-del-row" onclick="removeEquipmentRow(this)">-</button>
+    `;
+    container.appendChild(rowDiv);
+}
+
+function removeEquipmentRow(buttonElement) {
+    const container = document.getElementById("equipmentFieldsContainer");
+    if (container.querySelectorAll(".equip-row").length > 1) {
+        buttonElement.parentElement.remove();
+    } else {
+        buttonElement.parentElement.querySelector(".eq-type").value = "";
+        buttonElement.parentElement.querySelector(".eq-fullname").value = "";
+        buttonElement.parentElement.querySelector(".eq-neid").value = "";
+        buttonElement.parentElement.querySelector(".eq-ip").value = "";
     }
+}
+
+document.getElementById("siteId").addEventListener("blur", function() {
+    if (editKey) return; 
+    const value = this.value.trim().toUpperCase();
+    if (!value) return;
+
+    const match = dataArray.find(item => item.siteId && item.siteId.toUpperCase() === value);
+    if (match) {
+        alert(`⚠️ RECORD MATCH FOUND IN CLOUD!\nPulling parameters for ${value}.`);
+        populateFormFields(match);
+    }
+});
+
+function populateFormFields(item) {
+    editKey = item.firebaseKey;
+    document.getElementById("siteId").value = item.siteId || '';
+    document.getElementById("techNumber").value = item.techNumber || '';
+    document.getElementById("siteName").value = item.siteName || '';
+    document.getElementById("media").value = item.media || '';
+    document.getElementById("toco").value = item.toco || '';
+    document.getElementById("nmtLocation").value = item.nmtLocation || '';
+    document.getElementById("remarks").value = item.remarks || '';
     
-    window.database.ref('site_surveys').on('value', (snapshot) => {
-        data = [];
-        if (snapshot.exists()) {
-            const cloudData = snapshot.val();
-            // Convert the cloud database object back into your standard array format
-            for (let key in cloudData) {
-                data.push(cloudData[key]);
-            }
+    const container = document.getElementById("equipmentFieldsContainer");
+    container.innerHTML = "";
+    
+    if (item.equipments && item.equipments.length > 0) {
+        item.equipments.forEach(eq => {
+            addEquipmentRow(eq.type, eq.name, eq.neId, eq.ip);
+        });
+    } else {
+        addEquipmentRow(); 
+    }
+}
+
+function rebuildDataSuggestions(allSites) {
+    const siteNameSet = new Set();
+    const techNumberSet = new Set();
+    const mediaSet = new Set();
+    const tocoSet = new Set();
+    const nmtLocationSet = new Set();
+    const muxTypeSet = new Set();
+    const muxFullNameSet = new Set();
+    const muxNeIdSet = new Set();
+    const muxIpSet = new Set();
+
+    allSites.forEach(item => {
+        if (item.siteName) siteNameSet.add(item.siteName.trim());
+        if (item.techNumber) techNumberSet.add(item.techNumber.trim());
+        if (item.media) mediaSet.add(item.media.trim());
+        if (item.toco) tocoSet.add(item.toco.trim());
+        if (item.nmtLocation) nmtLocationSet.add(item.nmtLocation.trim());
+        if (item.equipments) {
+            item.equipments.forEach(eq => {
+                if (eq.type) muxTypeSet.add(eq.type.trim());
+                if (eq.name) muxFullNameSet.add(eq.name.trim());
+                if (eq.neId) muxNeIdSet.add(eq.neId.trim());
+                if (eq.ip) muxIpSet.add(eq.ip.trim());
+            });
         }
-        // Call your original display function to update the table on everyone's screen
-        if (typeof show === "function") { 
-            show(); 
+    });
+
+    updateDatalistOptions("siteNameSuggestions", siteNameSet);
+    updateDatalistOptions("techNumberSuggestions", techNumberSet);
+    updateDatalistOptions("mediaSuggestions", mediaSet);
+    updateDatalistOptions("tocoSuggestions", tocoSet);
+    updateDatalistOptions("nmtLocationSuggestions", nmtLocationSet);
+    updateDatalistOptions("muxTypeSuggestions", muxTypeSet);
+    updateDatalistOptions("muxFullNameSuggestions", muxFullNameSet);
+    updateDatalistOptions("muxNeIdSuggestions", muxNeIdSet);
+    updateDatalistOptions("muxIpSuggestions", muxIpSet);
+}
+
+function updateDatalistOptions(elementId, valueSet) {
+    const dl = document.getElementById(elementId);
+    dl.innerHTML = "";
+    valueSet.forEach(val => {
+        if (val) {
+            let opt = document.createElement("option");
+            opt.value = val;
+            dl.appendChild(opt);
         }
     });
 }
-listenToCloudDatabase();
 
-// --- STEP B: CROSS-USER MATCH CHECKER ---
-// This automatically alerts the operator if another teammate already entered the Site ID!
-function checkDuplicateID(inputField) {
-    const enteredID = inputField.value.trim().toUpperCase();
-    if (!enteredID) return;
-
-    // Check if that ID matches a record entered by anyone else in the group
-    const match = data.find(item => item.id && item.id.toUpperCase() === enteredID);
+database.ref('site_surveys').on('value', (snapshot) => {
+    dataArray = [];
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
     
-    if (match) {
-        alert(`⚠️ MATCH FOUND!\nThis site ID (${enteredID}) was already submitted by another team member.\n\nMatching Node Details:\nName: ${match.name}\nIP: ${match.ip}\nRemarks: ${match.remarks || 'No remarks recorded'}`);
-        
-        // Optional: Auto-fill the existing data fields for them to look at
-        document.getElementById('id').value = match.id || ''; // Adjust IDs if your inputs use different field names
-        if(document.getElementById('name')) document.getElementById('name').value = match.name || '';
-    }
-}
+    if (snapshot.exists()) {
+        snapshot.forEach((childSnapshot) => {
+            const item = childSnapshot.val();
+            const key = childSnapshot.key;
+            dataArray.push({ firebaseKey: key, ...item });
 
-// GPS
-function getLocation(){
- return new Promise((res,rej)=>{
-  if(!navigator.geolocation){
-    alert("GPS not supported");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-   pos=>res(pos.coords),
-   err=>{
-     alert("Please enable Location (GPS) manually in your phone settings.");
-     rej(err);
-   },
-   {enableHighAccuracy:true}
-  );
- });
-}
-
-// SAVE / UPDATE
-document.getElementById("form").addEventListener("submit", async e=>{
- e.preventDefault();
-
- try{
-  const coords = await getLocation();
-  const now = new Date();
-
-  let entry = {
-   siteId: siteId.value,
-   siteName: siteName.value,
-   ip: ip.value,
-   mux: mux.value,
-   media: media.value,
-   remarks: remarks.value,
-   lat: coords.latitude.toFixed(6),
-   long: coords.longitude.toFixed(6),
-   date: now.toLocaleDateString(),
-   time: now.toLocaleTimeString(),
-   map: `https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`,
-   edited: (editIndex !== -1) ? "Edited" : ""
-  };
-// --- CLOUD DATABASE SAVE LOGIC ---
-    if (editIndex === -1) {
-        // If it's a new entry, save it using its unique Site ID
-        window.database.ref('site_surveys/' + entry.siteId).set(entry, (error) => {
-            if (error) {
-                alert("Error saving to cloud: " + error.message);
+            let equipDetailsLayout = "";
+            if (item.equipments && item.equipments.length > 0) {
+                item.equipments.forEach(eq => {
+                    equipDetailsLayout += `<span class="equip-tag">🔹 [${eq.type || '-'}] ${eq.name || '-'} | NEID: ${eq.neId || '-'} ➡️ ${eq.ip || '-'}</span>`;
+                });
             } else {
-                alert("✅ Data saved to Cloud Database successfully!");
-                form.reset();
+                equipDetailsLayout = `<span style="color:#999; font-style:italic;">No equipment logs</span>`;
             }
-        });
-    } else {
-        // If updating an existing entry
-        window.database.ref('site_surveys/' + entry.siteId).update(entry, (error) => {
-            if (error) {
-                alert("Error updating cloud: " + error.message);
-            } else {
-                alert("✅ Cloud entry updated successfully!");
-                editIndex = -1;
-                form.reset();
-            }
-        });
-    }
 
- }catch{}
+            let row = `<tr>
+                <td style="font-weight:bold; color:#1b5e20;">${item.siteId || ''}</td>
+                <td style="font-weight:bold;">${item.techNumber || '-'}</td>
+                <td>${item.siteName || ''}</td>
+                <td>${item.media || ''}</td>
+                <td style="font-weight:bold; color:#0288d1;">${item.toco || '-'}</td>
+                <td style="font-weight:bold; color:#e65100;">${item.nmtLocation || '-'}</td>
+                <td style="font-family:monospace; font-size:12px;">${item.lat || '0'}, ${item.long || '0'}</td>
+                <td style="font-size:11px; color:#555;">${item.date || ''}<br>${item.time || ''}</td>
+                <td>${equipDetailsLayout}</td>
+                <td><small>${item.remarks || ''}</small></td>
+                <td>
+                    <button class="btn-action btn-edit" onclick="runRowEdit('${key}')">Edit</button>
+                    <button class="btn-action btn-del" onclick="deleteMasterRecord('${key}')">Del</button>
+                    <a href="${item.map || '#'}" target="_blank" class="btn-action btn-map" style="text-align:center;">Map</a>
+                </td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+        rebuildDataSuggestions(dataArray);
+    }
 });
 
-// DISPLAY
-function show(){
- let html="";
- data.forEach((d,i)=>{
-  html += `
-  <tr>
-  <td>${d.siteId}</td>
-  <td>${d.siteName}</td>
-  <td>${d.ip}</td>
-  <td>${d.mux}</td>
-  <td>${d.media || ''}</td>
-  <td>${d.lat}</td>
-  <td>${d.long}</td>
-  <td>${d.date}</td>
-  <td>${d.time}</td>
-  <td>${d.remarks || ''}</td>
-  <td>${d.edited ? '<span class="badge">Edited</span>' : ''}</td>
-  <td><a href="${d.map}" target="_blank">Map</a></td>
-  <td>
-    <button class="edit" onclick="edit(${i})">Edit</button>
-    <button class="delete" onclick="del(${i})">Del</button>
-  </td>
-  </tr>`;
- });
-
- document.getElementById("table").innerHTML = html;
+function fetchGPS() {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) resolve({ latitude: "0.000000", longitude: "0.000000" });
+        navigator.geolocation.getCurrentPosition(
+            (pos) => resolve(pos.coords),
+            () => resolve({ latitude: "0.000000", longitude: "0.000000" }),
+            { enableHighAccuracy: true, timeout: 6000 }
+        );
+    });
 }
 
-// EDIT
-function edit(i){
- let d = data[i];
- siteId.value = d.siteId;
- siteName.value = d.siteName;
- ip.value = d.ip;
- mux.value = d.mux;
- media.value = d.media || '';
- remarks.value = d.remarks || '';
- editIndex = i;
-}
+document.getElementById("surveyForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const gps = await fetchGPS();
+    const ts = new Date();
+    
+    const equipmentRows = document.querySelectorAll(".equip-row");
+    const equipmentListArray = [];
+    
+    equipmentRows.forEach(row => {
+        const type = row.querySelector(".eq-type").value.trim();
+        const name = row.querySelector(".eq-fullname").value.trim();
+        const neId = row.querySelector(".eq-neid").value.trim();
+        const ip = row.querySelector(".eq-ip").value.trim();
+        
+        if(type || name || neId || ip) {
+            equipmentListArray.push({ type, name, neId, ip });
+        }
+    });
 
-// DELETE
-function del(i){
- if(confirm("Delete this entry?")){
-  data.splice(i,1);
-  localStorage.setItem("data", JSON.stringify(data));
-  show();
- }
-}
-
-// EXPORT CSV
-function exportCSV(){
- let csv="ID,Name,IP,MUX,Media,Lat,Long,Date,Time,Remarks,Status\n";
-
- data.forEach(d=>{
-  csv += `${d.siteId},${d.siteName},${d.ip},${d.mux},${d.media},${d.lat},${d.long},${d.date},${d.time},"${d.remarks}",${d.edited}\n`;
- });
-
- let blob=new Blob([csv]);
- let a=document.createElement("a");
- a.href=URL.createObjectURL(blob);
- a.download="site_report.csv";
- a.click();
-}
-
-// REPORT
-function generateReport(){
- let win=window.open("");
-
- win.document.write(`
- <html><body>
- <h2>Site Report</h2>
- <p>Total Sites: ${data.length}</p>
-
- <table border=1>
- <tr>
- <th>ID</th><th>Name</th><th>IP</th><th>MUX</th><th>Media</th>
- <th>Lat</th><th>Long</th><th>Remarks</th><th>Status</th>
- </tr>
-
- ${data.map(d=>`
- <tr>
- <td>${d.siteId}</td>
- <td>${d.siteName}</td>
- <td>${d.ip}</td>
- <td>${d.mux}</td>
- <td>${d.media}</td>
- <td>${d.lat}</td>
- <td>${d.long}</td>
- <td>${d.remarks || ''}</td>
- <td>${d.edited}</td>
- </tr>
- `).join("")}
-
- </table>
- </body></html>
- `);
-
- win.document.close();
- win.print();
-}
-
-// LOAD
-show();
-// --- START OF FIREBASE SETUP ---
-// 1. Import Firebase libraries dynamically
-var fbAppScript = document.createElement('script');
-fbAppScript.src = "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js";
-document.head.appendChild(fbAppScript);
-
-var fbDbScript = document.createElement('script');
-fbDbScript.src = "https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js";
-document.head.appendChild(fbDbScript);
-
-// 2. Initialize database once libraries load
-fbDbScript.onload = function() {
-    const firebaseConfig = {
-      databaseURL: "https://site-survey-app-afb16-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    const surveyNodePackage = {
+        siteId: document.getElementById("siteId").value.trim(),
+        techNumber: document.getElementById("techNumber").value.trim(),
+        siteName: document.getElementById("siteName").value.trim(),
+        media: document.getElementById("media").value.trim(),
+        toco: document.getElementById("toco").value.trim(),
+        nmtLocation: document.getElementById("nmtLocation").value.trim(),
+        remarks: document.getElementById("remarks").value.trim(),
+        lat: Number(gps.latitude).toFixed(6),
+        long: Number(gps.longitude).toFixed(6),
+        date: ts.toLocaleDateString(),
+        time: ts.toLocaleTimeString(),
+        map: `https://www.google.com/maps?q=${gps.latitude},${gps.longitude}`,
+        equipments: equipmentListArray
     };
-    firebase.initializeApp(firebaseConfig);
-    window.database = firebase.database();
-    console.log("Firebase database is successfully connected!");
-};
-// --- END OF FIREBASE SETUP ---
-</script>
 
+    const databaseRefTarget = editKey ? database.ref('site_surveys/' + editKey) : database.ref('site_surveys').push();
+    
+    databaseRefTarget.set(surveyNodePackage, (err) => {
+        if (!err) {
+            alert("✅ Cloud Matrix synchronized perfectly!");
+            clearFormToDefault();
+        }
+    });
+});
+
+function runRowEdit(key) {
+    const record = dataArray.find(i => i.firebaseKey === key);
+    if (record) {
+        populateFormFields(record);
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+}
+
+function deleteMasterRecord(key) {
+    if (confirm("Are you sure?")) {
+        database.ref('site_surveys/' + key).remove();
+        clearFormToDefault();
+    }
+}
+
+function clearFormToDefault() {
+    editKey = null;
+    document.getElementById("surveyForm").reset();
+    document.getElementById("media").value = "OWN";
+    document.getElementById("equipmentFieldsContainer").innerHTML = "";
+    addEquipmentRow(); 
+}
+
+function filterTable() {
+    const sQuery = document.getElementById("tableSearch").value.toUpperCase().trim();
+    const rows = document.querySelectorAll("#tableBody tr");
+    rows.forEach(r => {
+        r.style.display = r.textContent.toUpperCase().includes(sQuery) ? "" : "none";
+    });
+}
+
+function exportToExcel() {
+    let htmlTableTemplate = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head><meta charset="UTF-8"></head>
+    <body><table border="1">
+    <tr style="background-color:#e8f5e9; font-weight:bold;">
+        <td>Site ID</td><td>Technical Number</td><td>Site Name</td><td>Media</td><td>TOCO</td><td>NMT Location</td><td>Latitude</td><td>Longitude</td><td>Survey Date</td><td>Survey Time</td><td>Site Remarks</td><td>MUX Brand/Type</td><td>MUX Full Name</td><td>MUX NE ID</td><td>MUX Management IP</td>
+    </tr>`;
+
+    dataArray.forEach(item => {
+        if (item.equipments && item.equipments.length > 0) {
+            item.equipments.forEach(eq => {
+                htmlTableTemplate += `<tr>
+                    <td>${item.siteId || ''}</td><td>${item.techNumber || ''}</td><td>${item.siteName || ''}</td><td>${item.media || ''}</td><td>${item.toco || ''}</td><td>${item.nmtLocation || ''}</td><td>${item.lat || ''}</td><td>${item.long || ''}</td><td>${item.date || ''}</td><td>${item.time || ''}</td><td>${item.remarks || ''}</td>
+                    <td>${eq.type || ''}</td><td>${eq.name || ''}</td><td>${eq.neId || ''}</td><td>${eq.ip || ''}</td>
+                </tr>`;
+            });
+        } else {
+            htmlTableTemplate += `<tr>
+                <td>${item.siteId || ''}</td><td>${item.techNumber || ''}</td><td>${item.siteName || ''}</td><td>${item.media || ''}</td><td>${item.toco || ''}</td><td>${item.nmtLocation || ''}</td><td>${item.lat || ''}</td><td>${item.long || ''}</td><td>${item.date || ''}</td><td>${item.time || ''}</td><td>${item.remarks || ''}</td>
+                <td></td><td></td><td></td><td></td>
+            </tr>`;
+        }
+    });
+
+    htmlTableTemplate += `</table></body></html>`;
+
+    let blob = new Blob([htmlTableTemplate], { type: "application/vnd.ms-excel" });
+    let dl = document.createElement("a");
+    dl.download = `Network_Site_Survey_Report_${new Date().toLocaleDateString()}.xls`;
+    dl.href = window.URL.createObjectURL(blob);
+    dl.style.display = "none";
+    document.body.appendChild(dl);
+    dl.click();
+    document.body.removeChild(dl);
+}
+
+// FORCE LOAD ROW ON COLD BOOT
+clearFormToDefault();
+</script>
 </body>
 </html>
