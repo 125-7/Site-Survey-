@@ -301,7 +301,7 @@ function fetchGPS() {
         navigator.geolocation.getCurrentPosition(
             (pos) => resolve(pos.coords),
             () => resolve({ latitude: "0.000000", longitude: "0.000000" }),
-            { enableHighAccuracy: true, timeout: 6000 }
+            { enableHighAccuracy: true, timeout: 15000 }
         );
     });
 }
