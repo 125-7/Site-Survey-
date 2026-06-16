@@ -12,6 +12,10 @@
         label { margin-bottom: 5px; font-weight: bold; font-size: 13px; }
         
         input[type="text"] { padding: 8px 24px 8px 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        input[type="text"].error { border-color: #d32f2f; background-color: #ffebee; }
+        
+        .error-message { color: #d32f2f; font-size: 11px; margin-top: 3px; }
+        .success-message { color: #2e7d32; font-size: 11px; margin-top: 3px; }
         
         .with-arrow::after {
             content: "\25BC";
@@ -25,17 +29,19 @@
 
         .equip-header { margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #2e7d32; color: #2e7d32; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
         .equip-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; background: #f9f9f9; padding: 8px; border-radius: 4px; border: 1px dashed #ccc; }
-        .btn-circle { width: 32px; height: 32px; border-radius: 50%; border: none; color: white; font-weight: bold; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
+        .btn-circle { width: 32px; height: 32px; border-radius: 50%; border: none; color: white; font-weight: bold; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-add-row { background-color: #1e88e5; }
         .btn-del-row { background-color: #d32f2f; }
         
         button.btn-main { padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; width: 100%; margin-top: 15px; font-size: 15px; }
         .btn-save { background-color: #2e7d32; }
+        .btn-cancel { background-color: #757575; margin-top: 5px; }
         .btn-excel { background-color: #1b5e20; margin-top: 5px; }
+        .btn-cancel:hover { background-color: #616161; }
         
         .search-box { width: 100%; padding: 12px; margin: 25px 0 10px 0; font-size: 15px; border: 2px solid #2e7d32; border-radius: 4px; box-sizing: border-box; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 13px; word-break: break-word; }
         th { background-color: #e8f5e9; color: #1b5e20; }
         
         .btn-action { padding: 5px 10px; margin: 2px; border: none; border-radius: 3px; color: white; cursor: pointer; font-size: 12px; display: inline-block; text-decoration: none; font-weight: bold; }
@@ -43,6 +49,16 @@
         .btn-del { background-color: #d32f2f; }
         .btn-map { background-color: #78909c; }
         .equip-tag { display: block; background: #e1f5fe; color: #0288d1; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin: 3px 0; font-weight: bold; border: 1px solid #b3e5fc; font-family: monospace; }
+        
+        .alert { padding: 12px; margin: 10px 0; border-radius: 4px; font-weight: bold; }
+        .alert-success { background-color: #c8e6c9; color: #2e7d32; border: 1px solid #81c784; }
+        .alert-error { background-color: #ffcdd2; color: #c62828; border: 1px solid #ef5350; }
+        .alert-warning { background-color: #fff9c4; color: #f57f17; border: 1px solid #fbc02d; }
+        
+        .form-buttons { display: flex; gap: 10px; }
+        .form-buttons button { flex: 1; }
+        
+        .edit-mode-banner { background-color: #fff59d; padding: 10px; margin-bottom: 15px; border-radius: 4px; font-weight: bold; color: #f57f17; display: none; }
     </style>
 </head>
 <body>
@@ -59,25 +75,30 @@
 
 <div class="form-container">
     <h2 style="color: #2e7d32; margin-top:0; margin-bottom: 20px;">Master Site Survey Node Entry</h2>
+    <div id="statusAlert"></div>
+    <div class="edit-mode-banner" id="editModeBanner">✏️ EDIT MODE: Updating existing record</div>
+    
     <form id="surveyForm">
         <div class="form-row">
             <div class="form-group">
-                <label>Site ID</label>
-                <input type="text" id="siteId" required placeholder="Enter Site ID">
+                <label>Site ID *</label>
+                <input type="text" id="siteId" required placeholder="e.g. ORBRA-11">
+                <div class="error-message" id="siteIdError"></div>
             </div>
             <div class="form-group with-arrow">
                 <label>Technical Number</label>
-                <input type="text" id="techNumber" placeholder="Enter Tech Mob Nunber " list="techNumberSuggestions">
+                <input type="text" id="techNumber" placeholder="e.g. TECH-4412" list="techNumberSuggestions">
             </div>
         </div>
         <div class="form-row">
             <div class="form-group with-arrow">
-                <label>Site Name</label>
+                <label>Site Name *</label>
                 <input type="text" id="siteName" required list="siteNameSuggestions">
+                <div class="error-message" id="siteNameError"></div>
             </div>
             <div class="form-group with-arrow">
-                <label>Media</label>
-                <input type="text" id="media" required list="mediaSuggestions">
+                <label>Media *</label>
+                <input type="text" id="media" required value="OWN" list="mediaSuggestions">
             </div>
         </div>
         <div class="form-row">
@@ -99,11 +120,13 @@
             <span>Rack Equipment Inventory Matrix</span>
             <button type="button" class="btn-circle btn-add-row" onclick="addEquipmentRow()">+</button>
         </div>
-        <div id="equipmentFieldsContainer">
-            </div>
+        <div id="equipmentFieldsContainer"></div>
 
-        <button type="submit" class="btn-main btn-save">Save / Update Master Database Node</button>
-        <button type="button" class="btn-main btn-excel" onclick="exportToExcel()">Export Data directly to Excel (.xls)</button>
+        <div class="form-buttons">
+            <button type="submit" class="btn-main btn-save">💾 Save / Update Master Database Node</button>
+            <button type="button" class="btn-main btn-cancel" id="cancelBtn" onclick="cancelEdit()" style="display:none;">❌ Cancel Edit</button>
+        </div>
+        <button type="button" class="btn-main btn-excel" onclick="exportToExcel()">📊 Export Data to Excel (.xls)</button>
     </form>
 </div>
 
@@ -132,6 +155,11 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
 <script>
+// ============================================
+// FIREBASE CONFIG - SECURE YOUR CREDENTIALS
+// ============================================
+// TODO: Add Firebase Authentication & Security Rules
+// For now, this is READ/WRITE OPEN - CHANGE IMMEDIATELY
 const firebaseConfig = {
     databaseURL: "https://site-survey-app-afb16-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
@@ -140,17 +168,101 @@ const database = firebase.database();
 
 let dataArray = [];
 let editKey = null;
+let isLoading = false;
 
-// FIXED DYNAMIC ROW ENGINE
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return String(text).replace(/[&<>"']/g, m => map[m]);
+}
+
+function showAlert(message, type = 'info') {
+    const alertDiv = document.getElementById("statusAlert");
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.innerHTML = message;
+    alertDiv.style.display = 'block';
+    setTimeout(() => {
+        alertDiv.style.display = 'none';
+    }, 5000);
+}
+
+function showFieldError(fieldId, message) {
+    const errorEl = document.getElementById(fieldId + "Error");
+    if (errorEl) {
+        errorEl.textContent = message;
+    }
+    document.getElementById(fieldId).classList.add('error');
+}
+
+function clearFieldError(fieldId) {
+    const errorEl = document.getElementById(fieldId + "Error");
+    if (errorEl) {
+        errorEl.textContent = '';
+    }
+    document.getElementById(fieldId).classList.remove('error');
+}
+
+// ============================================
+// FORM VALIDATION
+// ============================================
+function validateForm() {
+    let isValid = true;
+    
+    // Clear previous errors
+    clearFieldError('siteId');
+    clearFieldError('siteName');
+    
+    const siteId = document.getElementById("siteId").value.trim();
+    const siteName = document.getElementById("siteName").value.trim();
+    
+    // Validate Site ID
+    if (!siteId) {
+        showFieldError('siteId', 'Site ID is required');
+        isValid = false;
+    } else if (siteId.length < 3) {
+        showFieldError('siteId', 'Site ID must be at least 3 characters');
+        isValid = false;
+    }
+    
+    // Validate Site Name
+    if (!siteName) {
+        showFieldError('siteName', 'Site Name is required');
+        isValid = false;
+    } else if (siteName.length < 3) {
+        showFieldError('siteName', 'Site Name must be at least 3 characters');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+// ============================================
+// EQUIPMENT ROW MANAGEMENT
+// ============================================
 function addEquipmentRow(typeVal = '', nameVal = '', neIdVal = '', ipVal = '') {
     const container = document.getElementById("equipmentFieldsContainer");
     const rowDiv = document.createElement("div");
     rowDiv.className = "equip-row";
+    
+    // Sanitize input values
+    typeVal = escapeHtml(typeVal);
+    nameVal = escapeHtml(nameVal);
+    neIdVal = escapeHtml(neIdVal);
+    ipVal = escapeHtml(ipVal);
+    
     rowDiv.innerHTML = `
-        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-type" style="width:100%;" placeholder="MUX Type" value="${typeVal}" list="muxTypeSuggestions"></div>
-        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-fullname" style="width:100%;" placeholder="MUX Full Name" value="${nameVal}" list="muxFullNameSuggestions"></div>
-        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-neid" style="width:100%;" placeholder="MUX NE ID" value="${neIdVal}" list="muxNeIdSuggestions"></div>
-        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-ip" style="width:100%;" placeholder="MUX IP" value="${ipVal}" list="muxIpSuggestions"></div>
+        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-type" style="width:100%;" placeholder="MUX Type" value="${typeVal}" list="muxTypeSuggestions" maxlength="50"></div>
+        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-fullname" style="width:100%;" placeholder="MUX Full Name" value="${nameVal}" list="muxFullNameSuggestions" maxlength="100"></div>
+        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-neid" style="width:100%;" placeholder="MUX NE ID" value="${neIdVal}" list="muxNeIdSuggestions" maxlength="50"></div>
+        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-ip" style="width:100%;" placeholder="MUX IP" value="${ipVal}" list="muxIpSuggestions" maxlength="50"></div>
         <button type="button" class="btn-circle btn-del-row" onclick="removeEquipmentRow(this)">-</button>
     `;
     container.appendChild(rowDiv);
@@ -168,6 +280,9 @@ function removeEquipmentRow(buttonElement) {
     }
 }
 
+// ============================================
+// AUTO-FILL ON SITE ID MATCH
+// ============================================
 document.getElementById("siteId").addEventListener("blur", function() {
     if (editKey) return; 
     const value = this.value.trim().toUpperCase();
@@ -175,8 +290,13 @@ document.getElementById("siteId").addEventListener("blur", function() {
 
     const match = dataArray.find(item => item.siteId && item.siteId.toUpperCase() === value);
     if (match) {
-        alert(`⚠️ RECORD MATCH FOUND IN CLOUD!\nPulling parameters for ${value}.`);
-        populateFormFields(match);
+        const confirmed = confirm(`⚠️ RECORD FOUND!\n\nSite ID: ${value}\nSite Name: ${match.siteName}\n\nDo you want to edit this record?`);
+        if (confirmed) {
+            populateFormFields(match);
+        } else {
+            this.value = '';
+            clearFormToDefault();
+        }
     }
 });
 
@@ -190,18 +310,27 @@ function populateFormFields(item) {
     document.getElementById("nmtLocation").value = item.nmtLocation || '';
     document.getElementById("remarks").value = item.remarks || '';
     
+    // Show edit mode banner and cancel button
+    document.getElementById("editModeBanner").style.display = 'block';
+    document.getElementById("cancelBtn").style.display = 'block';
+    
     const container = document.getElementById("equipmentFieldsContainer");
     container.innerHTML = "";
     
     if (item.equipments && item.equipments.length > 0) {
         item.equipments.forEach(eq => {
-            addEquipmentRow(eq.type, eq.name, eq.neId, eq.ip);
+            addEquipmentRow(eq.type || '', eq.name || '', eq.neId || '', eq.ip || '');
         });
     } else {
         addEquipmentRow(); 
     }
+    
+    window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
+// ============================================
+// AUTOCOMPLETE SUGGESTIONS
+// ============================================
 function rebuildDataSuggestions(allSites) {
     const siteNameSet = new Set();
     const techNumberSet = new Set();
@@ -252,6 +381,9 @@ function updateDatalistOptions(elementId, valueSet) {
     });
 }
 
+// ============================================
+// FIREBASE DATA LISTENER
+// ============================================
 database.ref('site_surveys').on('value', (snapshot) => {
     dataArray = [];
     const tbody = document.getElementById("tableBody");
@@ -266,27 +398,44 @@ database.ref('site_surveys').on('value', (snapshot) => {
             let equipDetailsLayout = "";
             if (item.equipments && item.equipments.length > 0) {
                 item.equipments.forEach(eq => {
-                    equipDetailsLayout += `<span class="equip-tag">🔹 [${eq.type || '-'}] ${eq.name || '-'} | NEID: ${eq.neId || '-'} ➡️ ${eq.ip || '-'}</span>`;
+                    const type = escapeHtml(eq.type || '-');
+                    const name = escapeHtml(eq.name || '-');
+                    const neId = escapeHtml(eq.neId || '-');
+                    const ip = escapeHtml(eq.ip || '-');
+                    equipDetailsLayout += `<span class="equip-tag">🔹 [${type}] ${name} | NEID: ${neId} ➡️ ${ip}</span>`;
                 });
             } else {
                 equipDetailsLayout = `<span style="color:#999; font-style:italic;">No equipment logs</span>`;
             }
 
+            const siteId = escapeHtml(item.siteId || '');
+            const techNumber = escapeHtml(item.techNumber || '-');
+            const siteName = escapeHtml(item.siteName || '');
+            const media = escapeHtml(item.media || '');
+            const toco = escapeHtml(item.toco || '-');
+            const nmtLocation = escapeHtml(item.nmtLocation || '-');
+            const lat = escapeHtml(String(item.lat || '0'));
+            const long = escapeHtml(String(item.long || '0'));
+            const date = escapeHtml(item.date || '');
+            const time = escapeHtml(item.time || '');
+            const remarks = escapeHtml(item.remarks || '');
+            const mapUrl = escapeHtml(item.map || '#');
+
             let row = `<tr>
-                <td style="font-weight:bold; color:#1b5e20;">${item.siteId || ''}</td>
-                <td style="font-weight:bold;">${item.techNumber || '-'}</td>
-                <td>${item.siteName || ''}</td>
-                <td>${item.media || ''}</td>
-                <td style="font-weight:bold; color:#0288d1;">${item.toco || '-'}</td>
-                <td style="font-weight:bold; color:#e65100;">${item.nmtLocation || '-'}</td>
-                <td style="font-family:monospace; font-size:12px;">${item.lat || '0'}, ${item.long || '0'}</td>
-                <td style="font-size:11px; color:#555;">${item.date || ''}<br>${item.time || ''}</td>
+                <td style="font-weight:bold; color:#1b5e20;">${siteId}</td>
+                <td style="font-weight:bold;">${techNumber}</td>
+                <td>${siteName}</td>
+                <td>${media}</td>
+                <td style="font-weight:bold; color:#0288d1;">${toco}</td>
+                <td style="font-weight:bold; color:#e65100;">${nmtLocation}</td>
+                <td style="font-family:monospace; font-size:12px;">${lat}, ${long}</td>
+                <td style="font-size:11px; color:#555;">${date}<br>${time}</td>
                 <td>${equipDetailsLayout}</td>
-                <td><small>${item.remarks || ''}</small></td>
+                <td><small>${remarks}</small></td>
                 <td>
                     <button class="btn-action btn-edit" onclick="runRowEdit('${key}')">Edit</button>
                     <button class="btn-action btn-del" onclick="deleteMasterRecord('${key}')">Del</button>
-                    <a href="${item.map || '#'}" target="_blank" class="btn-action btn-map" style="text-align:center;">Map</a>
+                    <a href="${mapUrl}" target="_blank" class="btn-action btn-map" style="text-align:center;">Map</a>
                 </td>
             </tr>`;
             tbody.innerHTML += row;
@@ -295,73 +444,135 @@ database.ref('site_surveys').on('value', (snapshot) => {
     }
 });
 
+// ============================================
+// GPS LOCATION FETCHING
+// ============================================
 function fetchGPS() {
     return new Promise((resolve) => {
-        if (!navigator.geolocation) resolve({ latitude: "0.000000", longitude: "0.000000" });
+        if (!navigator.geolocation) {
+            showAlert('⚠️ Geolocation not available. Using default coordinates (0,0)', 'warning');
+            resolve({ latitude: "0.000000", longitude: "0.000000" });
+            return;
+        }
+        
         navigator.geolocation.getCurrentPosition(
             (pos) => resolve(pos.coords),
-            () => resolve({ latitude: "0.000000", longitude: "0.000000" }),
-            { enableHighAccuracy: true, timeout: 15000 }
+            (error) => {
+                let message = '⚠️ Location not captured: ';
+                if (error.code === 1) message += 'Permission denied';
+                else if (error.code === 2) message += 'Position unavailable';
+                else if (error.code === 3) message += 'Request timeout';
+                else message += 'Unknown error';
+                
+                showAlert(message + '. Using default coordinates (0,0)', 'warning');
+                resolve({ latitude: "0.000000", longitude: "0.000000" });
+            },
+            { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
         );
     });
 }
 
+// ============================================
+// FORM SUBMISSION
+// ============================================
 document.getElementById("surveyForm").addEventListener("submit", async function(e) {
     e.preventDefault();
-    const gps = await fetchGPS();
-    const ts = new Date();
     
-    const equipmentRows = document.querySelectorAll(".equip-row");
-    const equipmentListArray = [];
+    // Validate form
+    if (!validateForm()) {
+        showAlert('❌ Please fix the errors in the form', 'error');
+        return;
+    }
     
-    equipmentRows.forEach(row => {
-        const type = row.querySelector(".eq-type").value.trim();
-        const name = row.querySelector(".eq-fullname").value.trim();
-        const neId = row.querySelector(".eq-neid").value.trim();
-        const ip = row.querySelector(".eq-ip").value.trim();
+    isLoading = true;
+    const submitBtn = document.querySelector('.btn-save');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ Saving...';
+    
+    try {
+        const gps = await fetchGPS();
+        const ts = new Date();
         
-        if(type || name || neId || ip) {
-            equipmentListArray.push({ type, name, neId, ip });
-        }
-    });
+        const equipmentRows = document.querySelectorAll(".equip-row");
+        const equipmentListArray = [];
+        
+        equipmentRows.forEach(row => {
+            const type = row.querySelector(".eq-type").value.trim();
+            const name = row.querySelector(".eq-fullname").value.trim();
+            const neId = row.querySelector(".eq-neid").value.trim();
+            const ip = row.querySelector(".eq-ip").value.trim();
+            
+            if(type || name || neId || ip) {
+                equipmentListArray.push({ type, name, neId, ip });
+            }
+        });
 
-    const surveyNodePackage = {
-        siteId: document.getElementById("siteId").value.trim(),
-        techNumber: document.getElementById("techNumber").value.trim(),
-        siteName: document.getElementById("siteName").value.trim(),
-        media: document.getElementById("media").value.trim(),
-        toco: document.getElementById("toco").value.trim(),
-        nmtLocation: document.getElementById("nmtLocation").value.trim(),
-        remarks: document.getElementById("remarks").value.trim(),
-        lat: Number(gps.latitude).toFixed(6),
-        long: Number(gps.longitude).toFixed(6),
-        date: ts.toLocaleDateString(),
-        time: ts.toLocaleTimeString(),
-        map: `https://www.google.com/maps?q=${gps.latitude},${gps.longitude}`,
-        equipments: equipmentListArray
-    };
+        const surveyNodePackage = {
+            siteId: document.getElementById("siteId").value.trim().toUpperCase(),
+            techNumber: document.getElementById("techNumber").value.trim(),
+            siteName: document.getElementById("siteName").value.trim(),
+            media: document.getElementById("media").value.trim(),
+            toco: document.getElementById("toco").value.trim(),
+            nmtLocation: document.getElementById("nmtLocation").value.trim(),
+            remarks: document.getElementById("remarks").value.trim(),
+            lat: Number(gps.latitude).toFixed(6),
+            long: Number(gps.longitude).toFixed(6),
+            date: ts.toLocaleDateString(),
+            time: ts.toLocaleTimeString(),
+            map: `https://www.google.com/maps?q=${gps.latitude},${gps.longitude}`,
+            equipments: equipmentListArray,
+            updatedAt: new Date().toISOString()
+        };
 
-    const databaseRefTarget = editKey ? database.ref('site_surveys/' + editKey) : database.ref('site_surveys').push();
-    
-    databaseRefTarget.set(surveyNodePackage, (err) => {
-        if (!err) {
-            alert("✅ Cloud Matrix synchronized perfectly!");
-            clearFormToDefault();
-        }
-    });
+        const databaseRefTarget = editKey ? database.ref('site_surveys/' + editKey) : database.ref('site_surveys').push();
+        
+        databaseRefTarget.set(surveyNodePackage, (err) => {
+            isLoading = false;
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '💾 Save / Update Master Database Node';
+            
+            if (err) {
+                showAlert(`❌ Error saving data: ${err.message}`, 'error');
+                console.error('Firebase error:', err);
+            } else {
+                showAlert('✅ Data saved successfully to Cloud!', 'success');
+                clearFormToDefault();
+            }
+        });
+    } catch (error) {
+        isLoading = false;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '💾 Save / Update Master Database Node';
+        showAlert(`❌ Error: ${error.message}`, 'error');
+        console.error('Submit error:', error);
+    }
 });
 
 function runRowEdit(key) {
     const record = dataArray.find(i => i.firebaseKey === key);
     if (record) {
         populateFormFields(record);
-        window.scrollTo({top: 0, behavior: 'smooth'});
     }
 }
 
 function deleteMasterRecord(key) {
-    if (confirm("Are you sure?")) {
-        database.ref('site_surveys/' + key).remove();
+    const record = dataArray.find(i => i.firebaseKey === key);
+    const siteId = record ? record.siteId : 'Unknown';
+    
+    if (confirm(`⚠️ Are you sure you want to DELETE this record?\n\nSite ID: ${siteId}\n\nThis action CANNOT be undone.`)) {
+        database.ref('site_surveys/' + key).remove((err) => {
+            if (err) {
+                showAlert(`❌ Error deleting record: ${err.message}`, 'error');
+            } else {
+                showAlert(`✅ Record deleted successfully`, 'success');
+                clearFormToDefault();
+            }
+        });
+    }
+}
+
+function cancelEdit() {
+    if (confirm('Cancel editing this record?')) {
         clearFormToDefault();
     }
 }
@@ -371,54 +582,89 @@ function clearFormToDefault() {
     document.getElementById("surveyForm").reset();
     document.getElementById("media").value = "OWN";
     document.getElementById("equipmentFieldsContainer").innerHTML = "";
+    document.getElementById("editModeBanner").style.display = 'none';
+    document.getElementById("cancelBtn").style.display = 'none';
+    document.getElementById("statusAlert").style.display = 'none';
+    clearFieldError('siteId');
+    clearFieldError('siteName');
     addEquipmentRow(); 
 }
 
+// ============================================
+// TABLE SEARCH/FILTER
+// ============================================
 function filterTable() {
     const sQuery = document.getElementById("tableSearch").value.toUpperCase().trim();
     const rows = document.querySelectorAll("#tableBody tr");
+    let visibleCount = 0;
+    
     rows.forEach(r => {
-        r.style.display = r.textContent.toUpperCase().includes(sQuery) ? "" : "none";
+        const isMatch = r.textContent.toUpperCase().includes(sQuery);
+        r.style.display = isMatch ? "" : "none";
+        if (isMatch) visibleCount++;
     });
+    
+    if (visibleCount === 0 && sQuery.length > 0) {
+        showAlert('🔍 No records match your search', 'info');
+    }
 }
 
+// ============================================
+// EXCEL EXPORT
+// ============================================
 function exportToExcel() {
-    let htmlTableTemplate = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-    <head><meta charset="UTF-8"></head>
-    <body><table border="1">
-    <tr style="background-color:#e8f5e9; font-weight:bold;">
-        <td>Site ID</td><td>Technical Number</td><td>Site Name</td><td>Media</td><td>TOCO</td><td>NMT Location</td><td>Latitude</td><td>Longitude</td><td>Survey Date</td><td>Survey Time</td><td>Site Remarks</td><td>MUX Brand/Type</td><td>MUX Full Name</td><td>MUX NE ID</td><td>MUX Management IP</td>
-    </tr>`;
-
-    dataArray.forEach(item => {
-        if (item.equipments && item.equipments.length > 0) {
-            item.equipments.forEach(eq => {
-                htmlTableTemplate += `<tr>
-                    <td>${item.siteId || ''}</td><td>${item.techNumber || ''}</td><td>${item.siteName || ''}</td><td>${item.media || ''}</td><td>${item.toco || ''}</td><td>${item.nmtLocation || ''}</td><td>${item.lat || ''}</td><td>${item.long || ''}</td><td>${item.date || ''}</td><td>${item.time || ''}</td><td>${item.remarks || ''}</td>
-                    <td>${eq.type || ''}</td><td>${eq.name || ''}</td><td>${eq.neId || ''}</td><td>${eq.ip || ''}</td>
-                </tr>`;
-            });
-        } else {
-            htmlTableTemplate += `<tr>
-                <td>${item.siteId || ''}</td><td>${item.techNumber || ''}</td><td>${item.siteName || ''}</td><td>${item.media || ''}</td><td>${item.toco || ''}</td><td>${item.nmtLocation || ''}</td><td>${item.lat || ''}</td><td>${item.long || ''}</td><td>${item.date || ''}</td><td>${item.time || ''}</td><td>${item.remarks || ''}</td>
-                <td></td><td></td><td></td><td></td>
-            </tr>`;
+    try {
+        if (dataArray.length === 0) {
+            showAlert('❌ No data to export', 'error');
+            return;
         }
-    });
+        
+        let htmlTableTemplate = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head><meta charset="UTF-8"></head>
+        <body><table border="1">
+        <tr style="background-color:#e8f5e9; font-weight:bold;">
+            <td>Site ID</td><td>Technical Number</td><td>Site Name</td><td>Media</td><td>TOCO</td><td>NMT Location</td><td>Latitude</td><td>Longitude</td><td>Survey Date</td><td>Survey Time</td><td>Remarks</td><td>MUX Type</td><td>MUX Full Name</td><td>MUX NE ID</td><td>MUX IP</td>
+        </tr>`;
 
-    htmlTableTemplate += `</table></body></html>`;
+        dataArray.forEach(item => {
+            if (item.equipments && item.equipments.length > 0) {
+                item.equipments.forEach(eq => {
+                    htmlTableTemplate += `<tr>
+                        <td>${escapeHtml(item.siteId || '')}</td><td>${escapeHtml(item.techNumber || '')}</td><td>${escapeHtml(item.siteName || '')}</td><td>${escapeHtml(item.media || '')}</td><td>${escapeHtml(item.toco || '')}</td><td>${escapeHtml(item.nmtLocation || '')}</td>
+                        <td>${escapeHtml(String(item.lat || '0'))}</td><td>${escapeHtml(String(item.long || '0'))}</td><td>${escapeHtml(item.date || '')}</td><td>${escapeHtml(item.time || '')}</td><td>${escapeHtml(item.remarks || '')}</td>
+                        <td>${escapeHtml(eq.type || '')}</td><td>${escapeHtml(eq.name || '')}</td><td>${escapeHtml(eq.neId || '')}</td><td>${escapeHtml(eq.ip || '')}</td>
+                    </tr>`;
+                });
+            } else {
+                htmlTableTemplate += `<tr>
+                    <td>${escapeHtml(item.siteId || '')}</td><td>${escapeHtml(item.techNumber || '')}</td><td>${escapeHtml(item.siteName || '')}</td><td>${escapeHtml(item.media || '')}</td><td>${escapeHtml(item.toco || '')}</td><td>${escapeHtml(item.nmtLocation || '')}</td>
+                    <td>${escapeHtml(String(item.lat || '0'))}</td><td>${escapeHtml(String(item.long || '0'))}</td><td>${escapeHtml(item.date || '')}</td><td>${escapeHtml(item.time || '')}</td><td>${escapeHtml(item.remarks || '')}</td>
+                    <td></td><td></td><td></td><td></td>
+                </tr>`;
+            }
+        });
 
-    let blob = new Blob([htmlTableTemplate], { type: "application/vnd.ms-excel" });
-    let dl = document.createElement("a");
-    dl.download = `Network_Site_Survey_Report_${new Date().toLocaleDateString()}.xls`;
-    dl.href = window.URL.createObjectURL(blob);
-    dl.style.display = "none";
-    document.body.appendChild(dl);
-    dl.click();
-    document.body.removeChild(dl);
+        htmlTableTemplate += `</table></body></html>`;
+
+        let blob = new Blob([htmlTableTemplate], { type: "application/vnd.ms-excel" });
+        let dl = document.createElement("a");
+        dl.download = `Network_Site_Survey_Report_${new Date().toLocaleDateString().replace(/\//g, '-')}.xls`;
+        dl.href = window.URL.createObjectURL(blob);
+        dl.style.display = "none";
+        document.body.appendChild(dl);
+        dl.click();
+        document.body.removeChild(dl);
+        
+        showAlert('✅ Excel file downloaded successfully', 'success');
+    } catch (error) {
+        showAlert(`❌ Error exporting to Excel: ${error.message}`, 'error');
+        console.error('Export error:', error);
+    }
 }
 
-// FORCE LOAD ROW ON COLD BOOT
+// ============================================
+// INITIALIZATION
+// ============================================
 clearFormToDefault();
 </script>
 </body>
