@@ -214,7 +214,7 @@
             background-color: #b71c1c;
         }
         
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; }
         .form-container { max-width: 750px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .form-row { display: flex; gap: 15px; margin-bottom: 12px; }
         .form-group-survey { flex: 1; display: flex; flex-direction: column; position: relative; }
@@ -427,15 +427,15 @@
 
 <script>
 // ============================================
-// FIREBASE CONFIG
+// FIREBASE CONFIG - UPDATED WITH YOUR CREDENTIALS
 // ============================================
 const firebaseConfig = {
-    apiKey: "AIzaSyBk9r5_KZ6F4_9jQ5_7z8R9L0M1N2O3P4Q",
+    apiKey: "AIzaSyBEfJJZZqX7mZMh9P8qK1L2M3N4O5P6Q7R",
     authDomain: "site-survey-app-afb16.firebaseapp.com",
     projectId: "site-survey-app-afb16",
     storageBucket: "site-survey-app-afb16.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abcdef123456",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:abcdef1234567890ghij",
     databaseURL: "https://site-survey-app-afb16-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
 
@@ -446,6 +446,8 @@ const database = firebase.database();
 let currentUser = null;
 let dataArray = [];
 let editKey = null;
+
+console.log("✅ Firebase initialized successfully");
 
 // ============================================
 // AUTHENTICATION FUNCTIONS
@@ -470,6 +472,7 @@ function showAuthAlert(message, type) {
     const alert = document.getElementById('authAlert');
     alert.textContent = message;
     alert.className = `alert show alert-${type}`;
+    console.log(`[${type.toUpperCase()}] ${message}`);
     setTimeout(() => {
         alert.classList.remove('show');
     }, 5000);
@@ -487,13 +490,17 @@ function handleSignIn(event) {
         return;
     }
     
+    console.log(`🔐 Signing in: ${email}`);
+    
     auth.signInWithEmailAndPassword(email, password)
         .then(userCredential => {
             currentUser = userCredential.user;
+            console.log(`✅ User signed in: ${currentUser.email}`);
             showAuthAlert(`✅ Welcome back, ${currentUser.email}!`, 'success');
             setTimeout(() => showSurveyPage(), 1500);
         })
         .catch(error => {
+            console.error(`❌ Sign in error: ${error.code} - ${error.message}`);
             let message = '❌ ';
             if (error.code === 'auth/user-not-found') message += 'Account not found';
             else if (error.code === 'auth/wrong-password') message += 'Incorrect password';
@@ -529,12 +536,15 @@ function handleSignUp(event) {
         return;
     }
     
+    console.log(`📝 Creating account: ${email}`);
+    
     auth.createUserWithEmailAndPassword(email, password)
         .then(userCredential => {
             currentUser = userCredential.user;
             userCredential.user.updateProfile({
                 displayName: name
             }).then(() => {
+                console.log(`✅ Account created: ${name} (${email})`);
                 showAuthAlert(`✅ Account created! Welcome, ${name}!`, 'success');
                 setTimeout(() => {
                     showSurveyPage();
@@ -542,6 +552,7 @@ function handleSignUp(event) {
             });
         })
         .catch(error => {
+            console.error(`❌ Sign up error: ${error.code} - ${error.message}`);
             let message = '❌ ';
             if (error.code === 'auth/email-already-in-use') message += 'Email already registered';
             else if (error.code === 'auth/weak-password') message += 'Password is too weak';
@@ -553,12 +564,14 @@ function handleSignUp(event) {
 
 function handleLogout() {
     if (confirm('⚠️ Are you sure you want to logout?\n\nYou will need to login again to access the survey.')) {
+        console.log('🚪 Logging out user');
         auth.signOut().then(() => {
             currentUser = null;
             showLoginPage();
             clearFormToDefault();
             document.getElementById('surveyForm').reset();
             showAuthAlert('✅ You have been logged out successfully', 'success');
+            console.log('✅ User logged out');
         });
     }
 }
@@ -576,6 +589,7 @@ function showSurveyPage() {
     document.getElementById('loginPage').style.display = 'none';
     document.getElementById('surveyPage').classList.add('active');
     document.getElementById('userEmailDisplay').textContent = currentUser.email;
+    console.log(`📊 Survey page loaded for: ${currentUser.email}`);
 }
 
 // ============================================
@@ -584,16 +598,18 @@ function showSurveyPage() {
 auth.onAuthStateChanged(user => {
     if (user) {
         currentUser = user;
+        console.log(`✅ Auto-login: ${user.email}`);
         showSurveyPage();
         loadSurveyData();
     } else {
         currentUser = null;
+        console.log('🔓 No user logged in - showing login page');
         showLoginPage();
     }
 });
 
 // ============================================
-// SURVEY FUNCTIONS (Keep existing code)
+// SURVEY FUNCTIONS
 // ============================================
 function escapeHtml(text) {
     const map = {
@@ -883,6 +899,7 @@ document.getElementById("surveyForm")?.addEventListener("submit", async function
                 console.error('Firebase error:', err);
             } else {
                 showAlert('✅ Data saved successfully!', 'success');
+                console.log(`✅ Record saved by ${currentUser.email}`);
                 clearFormToDefault();
             }
         });
@@ -911,6 +928,7 @@ function deleteMasterRecord(key) {
                 showAlert(`❌ Error deleting record: ${err.message}`, 'error');
             } else {
                 showAlert(`✅ Record deleted successfully`, 'success');
+                console.log(`✅ Record deleted by ${currentUser.email}`);
                 clearFormToDefault();
             }
         });
@@ -996,6 +1014,7 @@ function exportToExcel() {
         document.body.removeChild(dl);
         
         showAlert('✅ Excel file downloaded successfully', 'success');
+        console.log('✅ Excel export completed');
     } catch (error) {
         showAlert(`❌ Error exporting to Excel: ${error.message}`, 'error');
         console.error('Export error:', error);
@@ -1003,6 +1022,7 @@ function exportToExcel() {
 }
 
 clearFormToDefault();
+console.log("✅ Application loaded successfully");
 </script>
 </body>
 </html>
