@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site Survey Matrix - Login</title>
+    <title>Site Survey Matrix - Secure Login</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -147,6 +147,12 @@
             border: 1px solid #ef5350;
         }
         
+        .alert-warning {
+            background-color: #fff9c4;
+            color: #f57f17;
+            border: 1px solid #fbc02d;
+        }
+        
         .toggle-form {
             text-align: center;
             margin-top: 15px;
@@ -165,9 +171,41 @@
             text-decoration: underline;
         }
         
+        /* ===== PENDING PAGE ===== */
+        .pending-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        .pending-container h2 {
+            color: #f57f17;
+            margin-bottom: 20px;
+        }
+        
+        .pending-container p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .pending-info {
+            background-color: #fff9c4;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #fbc02d;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
         /* ===== SURVEY PAGE STYLES ===== */
         .survey-page {
             display: none;
+            width: 100%;
         }
         
         .survey-page.active {
@@ -206,218 +244,346 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
+            font-size: 13px;
         }
         
         .btn-logout:hover {
             background-color: #b71c1c;
         }
         
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; }
-        .form-container { max-width: 750px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .form-row { display: flex; gap: 15px; margin-bottom: 12px; }
-        .form-group-survey { flex: 1; display: flex; flex-direction: column; position: relative; }
-        label { margin-bottom: 5px; font-weight: bold; font-size: 13px; }
-        
-        input[type="text"] { padding: 8px 24px 8px 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        input[type="text"].error { border-color: #d32f2f; background-color: #ffebee; }
-        
-        .error-message-survey { color: #d32f2f; font-size: 11px; margin-top: 3px; }
-        
-        .with-arrow::after {
-            content: "\25BC";
-            position: absolute;
-            right: 10px;
-            bottom: 10px;
-            font-size: 10px;
-            color: #333;
-            pointer-events: none;
+        .btn-admin {
+            background-color: #ff6f00;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-left: 5px;
         }
-
-        .equip-header { margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #2e7d32; color: #2e7d32; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        .equip-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; background: #f9f9f9; padding: 8px; border-radius: 4px; border: 1px dashed #ccc; }
-        .btn-circle { width: 32px; height: 32px; border-radius: 50%; border: none; color: white; font-weight: bold; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn-add-row { background-color: #1e88e5; }
-        .btn-del-row { background-color: #d32f2f; }
         
-        button.btn-main { padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; width: 100%; margin-top: 15px; font-size: 15px; }
-        .btn-save { background-color: #2e7d32; }
-        .btn-cancel { background-color: #757575; margin-top: 5px; }
-        .btn-excel { background-color: #1b5e20; margin-top: 5px; }
-        .btn-cancel:hover { background-color: #616161; }
+        .btn-admin:hover {
+            background-color: #e65100;
+        }
         
-        .search-box { width: 100%; padding: 12px; margin: 25px 0 10px 0; font-size: 15px; border: 2px solid #2e7d32; border-radius: 4px; box-sizing: border-box; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 13px; word-break: break-word; }
-        th { background-color: #e8f5e9; color: #1b5e20; }
+        /* ===== ADMIN PANEL ===== */
+        .admin-panel {
+            display: none;
+            width: 100%;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
         
-        .btn-action { padding: 5px 10px; margin: 2px; border: none; border-radius: 3px; color: white; cursor: pointer; font-size: 12px; display: inline-block; text-decoration: none; font-weight: bold; }
-        .btn-edit { background-color: #ffb300; color: black; }
-        .btn-del { background-color: #d32f2f; }
-        .btn-map { background-color: #78909c; }
-        .equip-tag { display: block; background: #e1f5fe; color: #0288d1; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin: 3px 0; font-weight: bold; border: 1px solid #b3e5fc; font-family: monospace; }
+        .admin-panel.active {
+            display: block;
+        }
         
-        .alert-survey { padding: 12px; margin: 10px 0; border-radius: 4px; font-weight: bold; }
-        .alert-success-survey { background-color: #c8e6c9; color: #2e7d32; border: 1px solid #81c784; }
-        .alert-error-survey { background-color: #ffcdd2; color: #c62828; border: 1px solid #ef5350; }
-        .alert-warning-survey { background-color: #fff9c4; color: #f57f17; border: 1px solid #fbc02d; }
+        .admin-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
         
-        .form-buttons { display: flex; gap: 10px; }
-        .form-buttons button { flex: 1; }
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
         
-        .edit-mode-banner { background-color: #fff59d; padding: 10px; margin-bottom: 15px; border-radius: 4px; font-weight: bold; color: #f57f17; display: none; }
+        .admin-tab-btn {
+            padding: 10px 20px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            border-bottom: 3px solid transparent;
+            color: #666;
+        }
+        
+        .admin-tab-btn.active {
+            color: #2e7d32;
+            border-bottom-color: #2e7d32;
+        }
+        
+        .admin-tab {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .admin-tab.active {
+            display: block;
+        }
+        
+        .user-list {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .user-list th, .user-list td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+        }
+        
+        .user-list th {
+            background-color: #e8f5e9;
+            font-weight: bold;
+            color: #1b5e20;
+        }
+        
+        .user-list tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background-color: #fff9c4;
+            color: #f57f17;
+        }
+        
+        .status-approved {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        .status-rejected {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+        
+        .btn-approve, .btn-reject {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .btn-approve {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .btn-approve:hover {
+            background-color: #45a049;
+        }
+        
+        .btn-reject {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .btn-reject:hover {
+            background-color: #da190b;
+        }
+        
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+        
+        input[type="text"], input[type="email"], input[type="password"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
 
 <!-- ===== LOGIN PAGE ===== -->
-<div class="login-page" id="loginPage">
-    <div class="login-container">
-        <h1>🔐 Site Survey</h1>
-        <p class="subtitle">Secure Access to Network Site Survey Matrix</p>
-        
-        <div class="alert" id="authAlert"></div>
-        
-        <!-- Sign In Form -->
-        <div id="signInForm">
-            <form onsubmit="handleSignIn(event)">
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="signInEmail" required placeholder="your.email@example.com">
-                    <div class="error-message" id="signInEmailError"></div>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="signInPassword" required placeholder="Enter your password">
-                    <div class="error-message" id="signInPasswordError"></div>
-                </div>
-                <div class="auth-buttons">
-                    <button type="submit" class="btn btn-signin">🔓 Sign In</button>
-                    <button type="button" class="btn btn-signup" onclick="toggleForms()">📝 Sign Up</button>
-                </div>
-            </form>
-        </div>
-        
-        <!-- Sign Up Form -->
-        <div id="signUpForm" style="display: none;">
-            <form onsubmit="handleSignUp(event)">
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="signUpName" required placeholder="Your full name">
-                    <div class="error-message" id="signUpNameError"></div>
-                </div>
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="signUpEmail" required placeholder="your.email@example.com">
-                    <div class="error-message" id="signUpEmailError"></div>
-                </div>
-                <div class="form-group">
-                    <label>Password (min 6 characters)</label>
-                    <input type="password" id="signUpPassword" required placeholder="Create a strong password" minlength="6">
-                    <div class="error-message" id="signUpPasswordError"></div>
-                </div>
-                <div class="form-group">
-                    <label>Confirm Password</label>
-                    <input type="password" id="signUpPasswordConfirm" required placeholder="Re-enter password" minlength="6">
-                    <div class="error-message" id="signUpPasswordConfirmError"></div>
-                </div>
-                <div class="auth-buttons">
-                    <button type="submit" class="btn btn-signup">✅ Create Account</button>
-                    <button type="button" class="btn btn-signin" onclick="toggleForms()">🔓 Back to Sign In</button>
-                </div>
-            </form>
-        </div>
+<div id="loginPage" class="login-container">
+    <h1>🔐 Site Survey</h1>
+    <p class="subtitle">Secure Access Control</p>
+    <div id="authAlert" class="alert"></div>
+    
+    <!-- SIGN IN FORM -->
+    <div id="signInForm">
+        <form onsubmit="handleSignIn(event)">
+            <div class="form-group">
+                <label>📧 Email Address</label>
+                <input type="email" id="signInEmail" required>
+            </div>
+            <div class="form-group">
+                <label>🔑 Password</label>
+                <input type="password" id="signInPassword" required>
+            </div>
+            <div class="auth-buttons">
+                <button type="submit" class="btn btn-signin">🔓 Sign In</button>
+                <button type="button" class="btn btn-signup" onclick="toggleAuthForm()">📝 Sign Up</button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- SIGN UP FORM -->
+    <div id="signUpForm" style="display:none;">
+        <form onsubmit="handleSignUp(event)">
+            <div class="form-group">
+                <label>👤 Full Name</label>
+                <input type="text" id="signUpName" required>
+            </div>
+            <div class="form-group">
+                <label>📧 Email Address</label>
+                <input type="email" id="signUpEmail" required>
+            </div>
+            <div class="form-group">
+                <label>🔑 Password (min 6 characters)</label>
+                <input type="password" id="signUpPassword" required minlength="6">
+            </div>
+            <div class="form-group">
+                <label>✅ Confirm Password</label>
+                <input type="password" id="signUpPasswordConfirm" required minlength="6">
+            </div>
+            <div class="form-group">
+                <label>🏢 Company/Department</label>
+                <input type="text" id="signUpCompany">
+            </div>
+            <div class="auth-buttons">
+                <button type="submit" class="btn btn-signup">✅ Create Account</button>
+                <button type="button" class="btn btn-signin" onclick="toggleAuthForm()">🔙 Back to Sign In</button>
+            </div>
+        </form>
     </div>
 </div>
 
+<!-- ===== PENDING APPROVAL PAGE ===== -->
+<div id="pendingPage" class="pending-container" style="display:none;">
+    <h2>⏳ Waiting for Approval</h2>
+    <p>Your account has been created successfully!</p>
+    <div class="pending-info">
+        <strong>📬 Next Step:</strong><br>
+        An administrator will review your request and send you an approval email.<br>
+        This usually takes 24-48 hours.
+    </div>
+    <p id="pendingEmail" style="font-size: 13px; color: #999;"></p>
+    <button type="button" class="btn btn-signin" onclick="handleLogout()" style="width: 100%; margin-top: 20px;">🚪 Sign Out</button>
+</div>
+
 <!-- ===== SURVEY PAGE ===== -->
-<div class="survey-page" id="surveyPage">
+<div id="surveyPage" class="survey-page">
     <div class="header-bar">
-        <h2>📊 Master Site Survey Node Entry</h2>
+        <h2>🏗️ Master Site Survey Node Entry</h2>
         <div class="user-info">
-            <span>👤 Logged in as: <strong id="userEmailDisplay"></strong></span>
+            <span id="userEmail"></span>
+            <button id="adminBtn" class="btn-admin" style="display:none;" onclick="showAdminPanel()">⚙️ Admin Panel</button>
             <button class="btn-logout" onclick="handleLogout()">🚪 Logout</button>
         </div>
     </div>
-
+    
     <div class="form-container">
-        <div id="statusAlert"></div>
-        <div class="edit-mode-banner" id="editModeBanner">✏️ EDIT MODE: Updating existing record</div>
-        
         <form id="surveyForm">
             <div class="form-row">
-                <div class="form-group-survey">
-                    <label>Site ID *</label>
-                    <input type="text" id="siteId" required placeholder="e.g. ORBRA-11">
-                    <div class="error-message-survey" id="siteIdError"></div>
+                <div style="flex:1;">
+                    <label>Site ID</label>
+                    <input type="text" id="siteId" required placeholder="Enter Site ID">
                 </div>
-                <div class="form-group-survey with-arrow">
+                <div style="flex:1;">
                     <label>Technical Number</label>
-                    <input type="text" id="techNumber" placeholder="e.g. TECH-4412">
+                    <input type="text" id="techNumber" placeholder="Enter Tech Number">
                 </div>
             </div>
             <div class="form-row">
-                <div class="form-group-survey with-arrow">
-                    <label>Site Name *</label>
-                    <input type="text" id="siteName" required>
-                    <div class="error-message-survey" id="siteNameError"></div>
+                <div style="flex:1;">
+                    <label>Site Name</label>
+                    <input type="text" id="siteName" required placeholder="Enter Site Name">
                 </div>
-                <div class="form-group-survey with-arrow">
-                    <label>Media *</label>
-                    <input type="text" id="media" required value="OWN">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group-survey with-arrow">
-                    <label>TOCO Option</label>
-                    <input type="text" id="toco" placeholder="Enter TOCO details">
-                </div>
-                <div class="form-group-survey with-arrow">
-                    <label>NMT Location</label>
-                    <input type="text" id="nmtLocation" placeholder="Enter NMT Location details">
+                <div style="flex:1;">
+                    <label>Media</label>
+                    <input type="text" id="media" required placeholder="Enter Media">
                 </div>
             </div>
-            <div class="form-group-survey">
-                <label>Site Base Remarks</label>
-                <input type="text" id="remarks">
-            </div>
-            
-            <div class="equip-header">
-                <span>Rack Equipment Inventory Matrix</span>
-                <button type="button" class="btn-circle btn-add-row" onclick="addEquipmentRow()">+</button>
-            </div>
-            <div id="equipmentFieldsContainer"></div>
-
-            <div class="form-buttons">
-                <button type="submit" class="btn-main btn-save">💾 Save / Update</button>
-                <button type="button" class="btn-main btn-cancel" id="cancelBtn" onclick="cancelEdit()" style="display:none;">❌ Cancel</button>
-            </div>
-            <button type="button" class="btn-main btn-excel" onclick="exportToExcel()">📊 Export to Excel</button>
+            <button type="submit" class="btn btn-signin" style="width: 100%; margin-top: 15px;">💾 Save Data</button>
         </form>
     </div>
+</div>
 
-    <input type="text" id="tableSearch" class="search-box" onkeyup="filterTable()" placeholder="🔍 Universal Search...">
-
-    <div style="max-width: 1400px; margin: 0 auto; padding: 0 20px;">
-        <table id="dataTable">
-            <thead>
-                <tr>
-                    <th>Site ID</th>
-                    <th>Technical No.</th>
-                    <th>Site Name</th>
-                    <th>Media</th>
-                    <th>TOCO</th>
-                    <th>NMT Location</th>
-                    <th>Location Coordinates</th>
-                    <th>Logged Date/Time</th>
-                    <th>Hardware Components</th>
-                    <th>Remarks</th>
-                    <th style="width:140px;">Operations</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
+<!-- ===== ADMIN PANEL ===== -->
+<div id="adminPanel" class="admin-panel">
+    <div class="header-bar">
+        <h2>⚙️ Admin Control Panel</h2>
+        <div class="user-info">
+            <button class="btn btn-signin" onclick="hideAdminPanel()" style="background-color: #666;">👈 Back to Survey</button>
+            <button class="btn-logout" onclick="handleLogout()">🚪 Logout</button>
+        </div>
+    </div>
+    
+    <div class="admin-content">
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" onclick="switchAdminTab('pending')">⏳ Pending Approval</button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('approved')">✅ Approved Users</button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('settings')">⚙️ Settings</button>
+        </div>
+        
+        <!-- PENDING APPROVALS TAB -->
+        <div id="pendingTab" class="admin-tab active">
+            <h3>Pending User Approvals</h3>
+            <table class="user-list" id="pendingTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Company</th>
+                        <th>Applied Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <!-- APPROVED USERS TAB -->
+        <div id="approvedTab" class="admin-tab">
+            <h3>Approved Users</h3>
+            <table class="user-list" id="approvedTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Company</th>
+                        <th>Approved Date</th>
+                        <th>Last Login</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <!-- SETTINGS TAB -->
+        <div id="settingsTab" class="admin-tab">
+            <h3>Access Control Settings</h3>
+            <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <p><strong>Current Admin Email:</strong> <span id="adminEmail"></span></p>
+                <p><strong>Total Users:</strong> <span id="totalUsers">0</span></p>
+                <p><strong>Approved Users:</strong> <span id="approvedCount">0</span></p>
+                <p><strong>Pending Approvals:</strong> <span id="pendingCount">0</span></p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -426,16 +592,11 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
 <script>
-// ============================================
-// FIREBASE CONFIG - UPDATED WITH YOUR CREDENTIALS
-// ============================================
+// ===== FIREBASE INITIALIZATION =====
 const firebaseConfig = {
-    apiKey: "AIzaSyBEfJJZZqX7mZMh9P8qK1L2M3N4O5P6Q7R",
-    authDomain: "site-survey-app-afb16.firebaseapp.com",
-    projectId: "site-survey-app-afb16",
-    storageBucket: "site-survey-app-afb16.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abcdef1234567890ghij",
+    apiKey: "YOUR_API_KEY_HERE",
+    authDomain: "your-project.firebaseapp.com",
+    projectId: "your-project-id",
     databaseURL: "https://site-survey-app-afb16-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
 
@@ -444,87 +605,82 @@ const auth = firebase.auth();
 const database = firebase.database();
 
 let currentUser = null;
-let dataArray = [];
-let editKey = null;
+const ADMIN_EMAIL = "admin@yourcompany.com";  // ⚠️ CHANGE THIS TO YOUR EMAIL
 
-console.log("✅ Firebase initialized successfully");
-
-// ============================================
-// AUTHENTICATION FUNCTIONS
-// ============================================
-function toggleForms() {
-    const signInForm = document.getElementById('signInForm');
-    const signUpForm = document.getElementById('signUpForm');
-    signInForm.style.display = signInForm.style.display === 'none' ? 'block' : 'none';
-    signUpForm.style.display = signUpForm.style.display === 'none' ? 'block' : 'none';
-    clearAuthErrors();
-}
-
-function clearAuthErrors() {
-    document.querySelectorAll('.error-message').forEach(el => {
-        el.textContent = '';
-        el.classList.remove('show');
-    });
-    document.querySelectorAll('input').forEach(el => el.classList.remove('error'));
+// ===== UI CONTROL FUNCTIONS =====
+function toggleAuthForm() {
+    document.getElementById('signInForm').style.display = 
+        document.getElementById('signInForm').style.display === 'none' ? 'block' : 'none';
+    document.getElementById('signUpForm').style.display = 
+        document.getElementById('signUpForm').style.display === 'none' ? 'block' : 'none';
+    document.getElementById('authAlert').innerHTML = '';
 }
 
 function showAuthAlert(message, type) {
-    const alert = document.getElementById('authAlert');
-    alert.textContent = message;
-    alert.className = `alert show alert-${type}`;
-    console.log(`[${type.toUpperCase()}] ${message}`);
-    setTimeout(() => {
-        alert.classList.remove('show');
-    }, 5000);
+    const alertEl = document.getElementById('authAlert');
+    alertEl.textContent = message;
+    alertEl.className = `alert show alert-${type}`;
 }
 
-function handleSignIn(event) {
-    event.preventDefault();
-    clearAuthErrors();
+function showLoginPage() {
+    document.getElementById('loginPage').style.display = 'block';
+    document.getElementById('pendingPage').style.display = 'none';
+    document.getElementById('surveyPage').classList.remove('active');
+    document.getElementById('adminPanel').classList.remove('active');
+}
+
+function showPendingPage(email) {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('pendingPage').style.display = 'block';
+    document.getElementById('surveyPage').classList.remove('active');
+    document.getElementById('pendingEmail').textContent = `Email: ${email}`;
+}
+
+function showSurveyPage() {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('pendingPage').style.display = 'none';
+    document.getElementById('surveyPage').classList.add('active');
+    document.getElementById('userEmail').textContent = `${currentUser.displayName} (${currentUser.email})`;
     
-    const email = document.getElementById('signInEmail').value.trim();
-    const password = document.getElementById('signInPassword').value;
-    
-    if (!email || !password) {
-        showAuthAlert('❌ Please enter email and password', 'error');
-        return;
+    // Show admin button only for admin
+    if (currentUser.email === ADMIN_EMAIL) {
+        document.getElementById('adminBtn').style.display = 'inline-block';
     }
-    
-    console.log(`🔐 Signing in: ${email}`);
-    
-    auth.signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-            currentUser = userCredential.user;
-            console.log(`✅ User signed in: ${currentUser.email}`);
-            showAuthAlert(`✅ Welcome back, ${currentUser.email}!`, 'success');
-            setTimeout(() => showSurveyPage(), 1500);
-        })
-        .catch(error => {
-            console.error(`❌ Sign in error: ${error.code} - ${error.message}`);
-            let message = '❌ ';
-            if (error.code === 'auth/user-not-found') message += 'Account not found';
-            else if (error.code === 'auth/wrong-password') message += 'Incorrect password';
-            else if (error.code === 'auth/invalid-email') message += 'Invalid email';
-            else message += error.message;
-            showAuthAlert(message, 'error');
-        });
 }
 
+function showAdminPanel() {
+    document.getElementById('surveyPage').classList.remove('active');
+    document.getElementById('adminPanel').classList.add('active');
+    loadPendingUsers();
+    loadApprovedUsers();
+    loadAdminStats();
+}
+
+function hideAdminPanel() {
+    document.getElementById('adminPanel').classList.remove('active');
+    document.getElementById('surveyPage').classList.add('active');
+}
+
+function switchAdminTab(tab) {
+    document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.admin-tab-btn').forEach(el => el.classList.remove('active'));
+    
+    document.getElementById(tab + 'Tab').classList.add('active');
+    event.target.classList.add('active');
+}
+
+// ===== SIGN UP FUNCTION =====
 function handleSignUp(event) {
     event.preventDefault();
-    clearAuthErrors();
     
     const name = document.getElementById('signUpName').value.trim();
     const email = document.getElementById('signUpEmail').value.trim();
     const password = document.getElementById('signUpPassword').value;
     const passwordConfirm = document.getElementById('signUpPasswordConfirm').value;
+    const company = document.getElementById('signUpCompany').value.trim();
     
     if (!name) {
         showAuthAlert('❌ Please enter your full name', 'error');
-        return;
-    }
-    if (!email) {
-        showAuthAlert('❌ Please enter your email', 'error');
         return;
     }
     if (password.length < 6) {
@@ -536,493 +692,257 @@ function handleSignUp(event) {
         return;
     }
     
-    console.log(`📝 Creating account: ${email}`);
-    
+    // Create user account
     auth.createUserWithEmailAndPassword(email, password)
         .then(userCredential => {
             currentUser = userCredential.user;
-            userCredential.user.updateProfile({
-                displayName: name
-            }).then(() => {
-                console.log(`✅ Account created: ${name} (${email})`);
-                showAuthAlert(`✅ Account created! Welcome, ${name}!`, 'success');
-                setTimeout(() => {
-                    showSurveyPage();
-                }, 1500);
-            });
+            
+            // Update profile with display name
+            currentUser.updateProfile({ displayName: name })
+                .then(() => {
+                    // Save user info to database with PENDING status
+                    database.ref('users/' + currentUser.uid).set({
+                        name: name,
+                        email: email,
+                        company: company,
+                        status: 'pending',           // ⚠️ PENDING - NEEDS ADMIN APPROVAL
+                        createdAt: new Date().toISOString(),
+                        approvedAt: null,
+                        rejectedAt: null
+                    });
+                    
+                    showAuthAlert('✅ Account created! Waiting for admin approval...', 'success');
+                    setTimeout(() => {
+                        showPendingPage(email);
+                    }, 1500);
+                });
         })
         .catch(error => {
-            console.error(`❌ Sign up error: ${error.code} - ${error.message}`);
             let message = '❌ ';
             if (error.code === 'auth/email-already-in-use') message += 'Email already registered';
             else if (error.code === 'auth/weak-password') message += 'Password is too weak';
-            else if (error.code === 'auth/invalid-email') message += 'Invalid email address';
             else message += error.message;
             showAuthAlert(message, 'error');
         });
 }
 
-function handleLogout() {
-    if (confirm('⚠️ Are you sure you want to logout?\n\nYou will need to login again to access the survey.')) {
-        console.log('🚪 Logging out user');
-        auth.signOut().then(() => {
-            currentUser = null;
-            showLoginPage();
-            clearFormToDefault();
-            document.getElementById('surveyForm').reset();
-            showAuthAlert('✅ You have been logged out successfully', 'success');
-            console.log('✅ User logged out');
-        });
-    }
-}
-
-function showLoginPage() {
-    document.getElementById('loginPage').style.display = 'block';
-    document.getElementById('surveyPage').classList.remove('active');
-    document.getElementById('signInForm').style.display = 'block';
-    document.getElementById('signUpForm').style.display = 'none';
-    clearAuthErrors();
-    document.getElementById('surveyForm').reset();
-}
-
-function showSurveyPage() {
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('surveyPage').classList.add('active');
-    document.getElementById('userEmailDisplay').textContent = currentUser.email;
-    console.log(`📊 Survey page loaded for: ${currentUser.email}`);
-}
-
-// ============================================
-// CHECK AUTH STATE ON PAGE LOAD
-// ============================================
-auth.onAuthStateChanged(user => {
-    if (user) {
-        currentUser = user;
-        console.log(`✅ Auto-login: ${user.email}`);
-        showSurveyPage();
-        loadSurveyData();
-    } else {
-        currentUser = null;
-        console.log('🔓 No user logged in - showing login page');
-        showLoginPage();
-    }
-});
-
-// ============================================
-// SURVEY FUNCTIONS
-// ============================================
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return String(text).replace(/[&<>"']/g, m => map[m]);
-}
-
-function showAlert(message, type = 'info') {
-    const alertDiv = document.getElementById("statusAlert");
-    alertDiv.className = `alert-survey alert-${type}-survey`;
-    alertDiv.innerHTML = message;
-    alertDiv.style.display = 'block';
-    setTimeout(() => {
-        alertDiv.style.display = 'none';
-    }, 5000);
-}
-
-function showFieldError(fieldId, message) {
-    const errorEl = document.getElementById(fieldId + "Error");
-    if (errorEl) {
-        errorEl.textContent = message;
-    }
-    document.getElementById(fieldId).classList.add('error');
-}
-
-function clearFieldError(fieldId) {
-    const errorEl = document.getElementById(fieldId + "Error");
-    if (errorEl) {
-        errorEl.textContent = '';
-    }
-    document.getElementById(fieldId).classList.remove('error');
-}
-
-function validateForm() {
-    let isValid = true;
-    clearFieldError('siteId');
-    clearFieldError('siteName');
+// ===== SIGN IN FUNCTION =====
+function handleSignIn(event) {
+    event.preventDefault();
     
-    const siteId = document.getElementById("siteId").value.trim();
-    const siteName = document.getElementById("siteName").value.trim();
+    const email = document.getElementById('signInEmail').value.trim();
+    const password = document.getElementById('signInPassword').value;
     
-    if (!siteId) {
-        showFieldError('siteId', 'Site ID is required');
-        isValid = false;
-    } else if (siteId.length < 3) {
-        showFieldError('siteId', 'Site ID must be at least 3 characters');
-        isValid = false;
-    }
-    
-    if (!siteName) {
-        showFieldError('siteName', 'Site Name is required');
-        isValid = false;
-    } else if (siteName.length < 3) {
-        showFieldError('siteName', 'Site Name must be at least 3 characters');
-        isValid = false;
-    }
-    
-    return isValid;
-}
-
-function addEquipmentRow(typeVal = '', nameVal = '', neIdVal = '', ipVal = '') {
-    const container = document.getElementById("equipmentFieldsContainer");
-    const rowDiv = document.createElement("div");
-    rowDiv.className = "equip-row";
-    
-    typeVal = escapeHtml(typeVal);
-    nameVal = escapeHtml(nameVal);
-    neIdVal = escapeHtml(neIdVal);
-    ipVal = escapeHtml(ipVal);
-    
-    rowDiv.innerHTML = `
-        <div class="form-group-survey with-arrow" style="flex:1;"><input type="text" class="eq-type" style="width:100%;" placeholder="MUX Type" value="${typeVal}" maxlength="50"></div>
-        <div class="form-group-survey with-arrow" style="flex:1;"><input type="text" class="eq-fullname" style="width:100%;" placeholder="MUX Full Name" value="${nameVal}" maxlength="100"></div>
-        <div class="form-group-survey with-arrow" style="flex:1;"><input type="text" class="eq-neid" style="width:100%;" placeholder="MUX NE ID" value="${neIdVal}" maxlength="50"></div>
-        <div class="form-group-survey with-arrow" style="flex:1;"><input type="text" class="eq-ip" style="width:100%;" placeholder="MUX IP" value="${ipVal}" maxlength="50"></div>
-        <button type="button" class="btn-circle btn-del-row" onclick="removeEquipmentRow(this)">-</button>
-    `;
-    container.appendChild(rowDiv);
-}
-
-function removeEquipmentRow(buttonElement) {
-    const container = document.getElementById("equipmentFieldsContainer");
-    if (container.querySelectorAll(".equip-row").length > 1) {
-        buttonElement.parentElement.remove();
-    } else {
-        buttonElement.parentElement.querySelector(".eq-type").value = "";
-        buttonElement.parentElement.querySelector(".eq-fullname").value = "";
-        buttonElement.parentElement.querySelector(".eq-neid").value = "";
-        buttonElement.parentElement.querySelector(".eq-ip").value = "";
-    }
-}
-
-document.getElementById("siteId")?.addEventListener("blur", function() {
-    if (editKey) return; 
-    const value = this.value.trim().toUpperCase();
-    if (!value) return;
-
-    const match = dataArray.find(item => item.siteId && item.siteId.toUpperCase() === value);
-    if (match) {
-        const confirmed = confirm(`⚠️ RECORD FOUND!\n\nSite ID: ${value}\nSite Name: ${match.siteName}\n\nDo you want to edit this record?`);
-        if (confirmed) {
-            populateFormFields(match);
-        } else {
-            this.value = '';
-            clearFormToDefault();
-        }
-    }
-});
-
-function populateFormFields(item) {
-    editKey = item.firebaseKey;
-    document.getElementById("siteId").value = item.siteId || '';
-    document.getElementById("techNumber").value = item.techNumber || '';
-    document.getElementById("siteName").value = item.siteName || '';
-    document.getElementById("media").value = item.media || '';
-    document.getElementById("toco").value = item.toco || '';
-    document.getElementById("nmtLocation").value = item.nmtLocation || '';
-    document.getElementById("remarks").value = item.remarks || '';
-    
-    document.getElementById("editModeBanner").style.display = 'block';
-    document.getElementById("cancelBtn").style.display = 'block';
-    
-    const container = document.getElementById("equipmentFieldsContainer");
-    container.innerHTML = "";
-    
-    if (item.equipments && item.equipments.length > 0) {
-        item.equipments.forEach(eq => {
-            addEquipmentRow(eq.type || '', eq.name || '', eq.neId || '', eq.ip || '');
-        });
-    } else {
-        addEquipmentRow(); 
-    }
-    
-    window.scrollTo({top: 0, behavior: 'smooth'});
-}
-
-function loadSurveyData() {
-    if (!currentUser) return;
-    
-    database.ref('site_surveys').on('value', (snapshot) => {
-        dataArray = [];
-        const tbody = document.getElementById("tableBody");
-        tbody.innerHTML = "";
-        
-        if (snapshot.exists()) {
-            snapshot.forEach((childSnapshot) => {
-                const item = childSnapshot.val();
-                const key = childSnapshot.key;
-                dataArray.push({ firebaseKey: key, ...item });
-
-                let equipDetailsLayout = "";
-                if (item.equipments && item.equipments.length > 0) {
-                    item.equipments.forEach(eq => {
-                        const type = escapeHtml(eq.type || '-');
-                        const name = escapeHtml(eq.name || '-');
-                        const neId = escapeHtml(eq.neId || '-');
-                        const ip = escapeHtml(eq.ip || '-');
-                        equipDetailsLayout += `<span class="equip-tag">🔹 [${type}] ${name} | NEID: ${neId} ➡️ ${ip}</span>`;
-                    });
-                } else {
-                    equipDetailsLayout = `<span style="color:#999; font-style:italic;">No equipment logs</span>`;
-                }
-
-                const siteId = escapeHtml(item.siteId || '');
-                const techNumber = escapeHtml(item.techNumber || '-');
-                const siteName = escapeHtml(item.siteName || '');
-                const media = escapeHtml(item.media || '');
-                const toco = escapeHtml(item.toco || '-');
-                const nmtLocation = escapeHtml(item.nmtLocation || '-');
-                const lat = escapeHtml(String(item.lat || '0'));
-                const long = escapeHtml(String(item.long || '0'));
-                const date = escapeHtml(item.date || '');
-                const time = escapeHtml(item.time || '');
-                const remarks = escapeHtml(item.remarks || '');
-                const mapUrl = escapeHtml(item.map || '#');
-
-                let row = `<tr>
-                    <td style="font-weight:bold; color:#1b5e20;">${siteId}</td>
-                    <td style="font-weight:bold;">${techNumber}</td>
-                    <td>${siteName}</td>
-                    <td>${media}</td>
-                    <td style="font-weight:bold; color:#0288d1;">${toco}</td>
-                    <td style="font-weight:bold; color:#e65100;">${nmtLocation}</td>
-                    <td style="font-family:monospace; font-size:12px;">${lat}, ${long}</td>
-                    <td style="font-size:11px; color:#555;">${date}<br>${time}</td>
-                    <td>${equipDetailsLayout}</td>
-                    <td><small>${remarks}</small></td>
-                    <td>
-                        <button class="btn-action btn-edit" onclick="runRowEdit('${key}')">Edit</button>
-                        <button class="btn-action btn-del" onclick="deleteMasterRecord('${key}')">Del</button>
-                        <a href="${mapUrl}" target="_blank" class="btn-action btn-map" style="text-align:center;">Map</a>
-                    </td>
-                </tr>`;
-                tbody.innerHTML += row;
-            });
-        }
-    });
-}
-
-function fetchGPS() {
-    return new Promise((resolve) => {
-        if (!navigator.geolocation) {
-            showAlert('⚠️ Geolocation not available. Using default coordinates (0,0)', 'warning');
-            resolve({ latitude: "0.000000", longitude: "0.000000" });
-            return;
-        }
-        
-        navigator.geolocation.getCurrentPosition(
-            (pos) => resolve(pos.coords),
-            (error) => {
-                let message = '⚠️ Location not captured: ';
-                if (error.code === 1) message += 'Permission denied';
-                else if (error.code === 2) message += 'Position unavailable';
-                else if (error.code === 3) message += 'Request timeout';
-                else message += 'Unknown error';
-                
-                showAlert(message + '. Using default coordinates (0,0)', 'warning');
-                resolve({ latitude: "0.000000", longitude: "0.000000" });
-            },
-            { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
-        );
-    });
-}
-
-document.getElementById("surveyForm")?.addEventListener("submit", async function(e) {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-        showAlert('❌ Please fix the errors in the form', 'error');
+    if (!email || !password) {
+        showAuthAlert('❌ Please enter email and password', 'error');
         return;
     }
     
-    const submitBtn = document.querySelector('.btn-save');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '⏳ Saving...';
-    
-    try {
-        const gps = await fetchGPS();
-        const ts = new Date();
-        
-        const equipmentRows = document.querySelectorAll(".equip-row");
-        const equipmentListArray = [];
-        
-        equipmentRows.forEach(row => {
-            const type = row.querySelector(".eq-type").value.trim();
-            const name = row.querySelector(".eq-fullname").value.trim();
-            const neId = row.querySelector(".eq-neid").value.trim();
-            const ip = row.querySelector(".eq-ip").value.trim();
+    auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+            currentUser = userCredential.user;
             
-            if(type || name || neId || ip) {
-                equipmentListArray.push({ type, name, neId, ip });
-            }
+            // Check user status in database
+            database.ref('users/' + currentUser.uid).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    
+                    if (userData.status === 'approved') {
+                        // ✅ APPROVED - ALLOW ACCESS
+                        database.ref('users/' + currentUser.uid + '/lastLogin').set(new Date().toISOString());
+                        showAuthAlert(`✅ Welcome back, ${currentUser.displayName}!`, 'success');
+                        setTimeout(() => showSurveyPage(), 1000);
+                    } else if (userData.status === 'pending') {
+                        // ⏳ PENDING - WAITING FOR APPROVAL
+                        showAuthAlert('⏳ Your account is pending admin approval', 'warning');
+                        setTimeout(() => {
+                            showPendingPage(email);
+                        }, 1500);
+                    } else if (userData.status === 'rejected') {
+                        // ❌ REJECTED - DENY ACCESS
+                        auth.signOut();
+                        showAuthAlert('❌ Your account has been rejected', 'error');
+                    }
+                } else {
+                    // New user - set to pending
+                    database.ref('users/' + currentUser.uid).set({
+                        name: currentUser.displayName || 'User',
+                        email: currentUser.email,
+                        status: 'pending',
+                        createdAt: new Date().toISOString()
+                    });
+                    showAuthAlert('⏳ Waiting for admin approval', 'warning');
+                    showPendingPage(email);
+                }
+            });
+        })
+        .catch(error => {
+            let message = '❌ ';
+            if (error.code === 'auth/user-not-found') message += 'Account not found';
+            else if (error.code === 'auth/wrong-password') message += 'Incorrect password';
+            else message += error.message;
+            showAuthAlert(message, 'error');
         });
+}
 
-        const surveyNodePackage = {
-            siteId: document.getElementById("siteId").value.trim().toUpperCase(),
-            techNumber: document.getElementById("techNumber").value.trim(),
-            siteName: document.getElementById("siteName").value.trim(),
-            media: document.getElementById("media").value.trim(),
-            toco: document.getElementById("toco").value.trim(),
-            nmtLocation: document.getElementById("nmtLocation").value.trim(),
-            remarks: document.getElementById("remarks").value.trim(),
-            lat: Number(gps.latitude).toFixed(6),
-            long: Number(gps.longitude).toFixed(6),
-            date: ts.toLocaleDateString(),
-            time: ts.toLocaleTimeString(),
-            map: `https://www.google.com/maps?q=${gps.latitude},${gps.longitude}`,
-            equipments: equipmentListArray,
-            updatedAt: new Date().toISOString(),
-            userId: currentUser.uid,
-            userEmail: currentUser.email
-        };
-
-        const databaseRefTarget = editKey ? database.ref('site_surveys/' + editKey) : database.ref('site_surveys').push();
-        
-        databaseRefTarget.set(surveyNodePackage, (err) => {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '💾 Save / Update';
-            
-            if (err) {
-                showAlert(`❌ Error saving data: ${err.message}`, 'error');
-                console.error('Firebase error:', err);
-            } else {
-                showAlert('✅ Data saved successfully!', 'success');
-                console.log(`✅ Record saved by ${currentUser.email}`);
-                clearFormToDefault();
-            }
+// ===== LOGOUT FUNCTION =====
+function handleLogout() {
+    if (confirm('⚠️ Are you sure you want to logout?')) {
+        auth.signOut().then(() => {
+            currentUser = null;
+            document.getElementById('signInForm').style.display = 'block';
+            document.getElementById('signUpForm').style.display = 'none';
+            document.getElementById('signInEmail').value = '';
+            document.getElementById('signInPassword').value = '';
+            showAuthAlert('✅ You have been logged out', 'success');
+            showLoginPage();
         });
-    } catch (error) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '💾 Save / Update';
-        showAlert(`❌ Error: ${error.message}`, 'error');
-        console.error('Submit error:', error);
-    }
-});
-
-function runRowEdit(key) {
-    const record = dataArray.find(i => i.firebaseKey === key);
-    if (record) {
-        populateFormFields(record);
     }
 }
 
-function deleteMasterRecord(key) {
-    const record = dataArray.find(i => i.firebaseKey === key);
-    const siteId = record ? record.siteId : 'Unknown';
+// ===== ADMIN FUNCTIONS =====
+function loadPendingUsers() {
+    const tbody = document.querySelector('#pendingTable tbody');
+    tbody.innerHTML = '';
     
-    if (confirm(`⚠️ Are you sure you want to DELETE this record?\n\nSite ID: ${siteId}\n\nThis action CANNOT be undone.`)) {
-        database.ref('site_surveys/' + key).remove((err) => {
-            if (err) {
-                showAlert(`❌ Error deleting record: ${err.message}`, 'error');
-            } else {
-                showAlert(`✅ Record deleted successfully`, 'success');
-                console.log(`✅ Record deleted by ${currentUser.email}`);
-                clearFormToDefault();
-            }
-        });
-    }
-}
-
-function cancelEdit() {
-    if (confirm('Cancel editing this record?')) {
-        clearFormToDefault();
-    }
-}
-
-function clearFormToDefault() {
-    editKey = null;
-    document.getElementById("surveyForm").reset();
-    document.getElementById("media").value = "OWN";
-    document.getElementById("equipmentFieldsContainer").innerHTML = "";
-    document.getElementById("editModeBanner").style.display = 'none';
-    document.getElementById("cancelBtn").style.display = 'none';
-    document.getElementById("statusAlert").style.display = 'none';
-    clearFieldError('siteId');
-    clearFieldError('siteName');
-    addEquipmentRow(); 
-}
-
-function filterTable() {
-    const sQuery = document.getElementById("tableSearch").value.toUpperCase().trim();
-    const rows = document.querySelectorAll("#tableBody tr");
-    let visibleCount = 0;
-    
-    rows.forEach(r => {
-        const isMatch = r.textContent.toUpperCase().includes(sQuery);
-        r.style.display = isMatch ? "" : "none";
-        if (isMatch) visibleCount++;
+    database.ref('users').orderByChild('status').equalTo('pending').once('value', snapshot => {
+        if (snapshot.exists()) {
+            snapshot.forEach(child => {
+                const user = child.val();
+                const uid = child.key;
+                const date = new Date(user.createdAt).toLocaleDateString();
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>${user.company || '-'}</td>
+                        <td>${date}</td>
+                        <td>
+                            <button class="btn-approve" onclick="approveUser('${uid}', '${user.email}')">✅ Approve</button>
+                            <button class="btn-reject" onclick="rejectUser('${uid}')">❌ Reject</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999;">No pending approvals</td></tr>';
+        }
     });
-    
-    if (visibleCount === 0 && sQuery.length > 0) {
-        showAlert('🔍 No records match your search', 'info');
-    }
 }
 
-function exportToExcel() {
-    try {
-        if (dataArray.length === 0) {
-            showAlert('❌ No data to export', 'error');
-            return;
+function loadApprovedUsers() {
+    const tbody = document.querySelector('#approvedTable tbody');
+    tbody.innerHTML = '';
+    
+    database.ref('users').orderByChild('status').equalTo('approved').once('value', snapshot => {
+        if (snapshot.exists()) {
+            snapshot.forEach(child => {
+                const user = child.val();
+                const approvedDate = new Date(user.approvedAt).toLocaleDateString();
+                const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never';
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>${user.company || '-'}</td>
+                        <td>${approvedDate}</td>
+                        <td>${lastLogin}</td>
+                        <td>
+                            <button class="btn-reject" onclick="revokeUser('${child.key}')">🚫 Revoke</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#999;">No approved users yet</td></tr>';
+        }
+    });
+}
+
+function loadAdminStats() {
+    database.ref('users').once('value', snapshot => {
+        let total = 0, approved = 0, pending = 0;
+        
+        if (snapshot.exists()) {
+            snapshot.forEach(child => {
+                total++;
+                const status = child.val().status;
+                if (status === 'approved') approved++;
+                if (status === 'pending') pending++;
+            });
         }
         
-        let htmlTableTemplate = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-        <head><meta charset="UTF-8"></head>
-        <body><table border="1">
-        <tr style="background-color:#e8f5e9; font-weight:bold;">
-            <td>Site ID</td><td>Technical Number</td><td>Site Name</td><td>Media</td><td>TOCO</td><td>NMT Location</td><td>Latitude</td><td>Longitude</td><td>Survey Date</td><td>Survey Time</td><td>Remarks</td><td>MUX Type</td><td>MUX Full Name</td><td>MUX NE ID</td><td>MUX IP</td>
-        </tr>`;
+        document.getElementById('totalUsers').textContent = total;
+        document.getElementById('approvedCount').textContent = approved;
+        document.getElementById('pendingCount').textContent = pending;
+        document.getElementById('adminEmail').textContent = ADMIN_EMAIL;
+    });
+}
 
-        dataArray.forEach(item => {
-            if (item.equipments && item.equipments.length > 0) {
-                item.equipments.forEach(eq => {
-                    htmlTableTemplate += `<tr>
-                        <td>${escapeHtml(item.siteId || '')}</td><td>${escapeHtml(item.techNumber || '')}</td><td>${escapeHtml(item.siteName || '')}</td><td>${escapeHtml(item.media || '')}</td><td>${escapeHtml(item.toco || '')}</td><td>${escapeHtml(item.nmtLocation || '')}</td>
-                        <td>${escapeHtml(String(item.lat || '0'))}</td><td>${escapeHtml(String(item.long || '0'))}</td><td>${escapeHtml(item.date || '')}</td><td>${escapeHtml(item.time || '')}</td><td>${escapeHtml(item.remarks || '')}</td>
-                        <td>${escapeHtml(eq.type || '')}</td><td>${escapeHtml(eq.name || '')}</td><td>${escapeHtml(eq.neId || '')}</td><td>${escapeHtml(eq.ip || '')}</td>
-                    </tr>`;
-                });
-            } else {
-                htmlTableTemplate += `<tr>
-                    <td>${escapeHtml(item.siteId || '')}</td><td>${escapeHtml(item.techNumber || '')}</td><td>${escapeHtml(item.siteName || '')}</td><td>${escapeHtml(item.media || '')}</td><td>${escapeHtml(item.toco || '')}</td><td>${escapeHtml(item.nmtLocation || '')}</td>
-                    <td>${escapeHtml(String(item.lat || '0'))}</td><td>${escapeHtml(String(item.long || '0'))}</td><td>${escapeHtml(item.date || '')}</td><td>${escapeHtml(item.time || '')}</td><td>${escapeHtml(item.remarks || '')}</td>
-                    <td></td><td></td><td></td><td></td>
-                </tr>`;
-            }
+function approveUser(uid, email) {
+    if (confirm(`✅ Approve ${email}?`)) {
+        database.ref('users/' + uid).update({
+            status: 'approved',
+            approvedAt: new Date().toISOString()
         });
-
-        htmlTableTemplate += `</table></body></html>`;
-
-        let blob = new Blob([htmlTableTemplate], { type: "application/vnd.ms-excel" });
-        let dl = document.createElement("a");
-        dl.download = `Network_Site_Survey_Report_${new Date().toLocaleDateString().replace(/\//g, '-')}.xls`;
-        dl.href = window.URL.createObjectURL(blob);
-        dl.style.display = "none";
-        document.body.appendChild(dl);
-        dl.click();
-        document.body.removeChild(dl);
-        
-        showAlert('✅ Excel file downloaded successfully', 'success');
-        console.log('✅ Excel export completed');
-    } catch (error) {
-        showAlert(`❌ Error exporting to Excel: ${error.message}`, 'error');
-        console.error('Export error:', error);
+        alert('✅ User approved!');
+        loadPendingUsers();
+        loadApprovedUsers();
+        loadAdminStats();
     }
 }
 
-clearFormToDefault();
-console.log("✅ Application loaded successfully");
+function rejectUser(uid) {
+    if (confirm('❌ Reject this user?')) {
+        database.ref('users/' + uid).update({
+            status: 'rejected',
+            rejectedAt: new Date().toISOString()
+        });
+        alert('❌ User rejected!');
+        loadPendingUsers();
+        loadAdminStats();
+    }
+}
+
+function revokeUser(uid) {
+    if (confirm('🚫 Revoke access for this user?')) {
+        database.ref('users/' + uid).update({
+            status: 'rejected',
+            rejectedAt: new Date().toISOString()
+        });
+        alert('🚫 Access revoked!');
+        loadApprovedUsers();
+        loadAdminStats();
+    }
+}
+
+// ===== AUTH STATE LISTENER =====
+auth.onAuthStateChanged(user => {
+    if (user) {
+        currentUser = user;
+        
+        // Check if user is approved
+        database.ref('users/' + user.uid).once('value', snapshot => {
+            if (snapshot.exists()) {
+                const userData = snapshot.val();
+                if (userData.status === 'approved') {
+                    showSurveyPage();
+                } else if (userData.status === 'pending') {
+                    showPendingPage(user.email);
+                } else {
+                    auth.signOut();
+                    showLoginPage();
+                }
+            }
+        });
+    } else {
+        currentUser = null;
+        showLoginPage();
+    }
+});
 </script>
+
 </body>
 </html>
