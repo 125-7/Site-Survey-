@@ -3,19 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Site Survey Matrix</title>
+    <title>Site Survey Matrix - Login</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
-        .form-container { max-width: 750px; margin: 0 auto 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* ===== LOGIN PAGE STYLES ===== */
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-container h1 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 28px;
+        }
+        
+        .login-container .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #2e7d32;
+            background-color: #f0f8f0;
+        }
+        
+        .form-group input.error {
+            border-color: #d32f2f;
+            background-color: #ffebee;
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-signin {
+            background-color: #2e7d32;
+            color: white;
+        }
+        
+        .btn-signin:hover {
+            background-color: #1b5e20;
+        }
+        
+        .btn-signup {
+            background-color: #1e88e5;
+            color: white;
+        }
+        
+        .btn-signup:hover {
+            background-color: #1565c0;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .alert {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 13px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .alert-success {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+            border: 1px solid #81c784;
+        }
+        
+        .alert-error {
+            background-color: #ffcdd2;
+            color: #c62828;
+            border: 1px solid #ef5350;
+        }
+        
+        .toggle-form {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .toggle-form a {
+            color: #2e7d32;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .toggle-form a:hover {
+            text-decoration: underline;
+        }
+        
+        /* ===== SURVEY PAGE STYLES ===== */
+        .survey-page {
+            display: none;
+        }
+        
+        .survey-page.active {
+            display: block;
+        }
+        
+        .header-bar {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .header-bar h2 {
+            font-size: 18px;
+            margin: 0;
+        }
+        
+        .user-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .user-info span {
+            font-size: 13px;
+        }
+        
+        .btn-logout {
+            background-color: #d32f2f;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .btn-logout:hover {
+            background-color: #b71c1c;
+        }
+        
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; }
+        .form-container { max-width: 750px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .form-row { display: flex; gap: 15px; margin-bottom: 12px; }
-        .form-group { flex: 1; display: flex; flex-direction: column; position: relative; }
+        .form-group-survey { flex: 1; display: flex; flex-direction: column; position: relative; }
         label { margin-bottom: 5px; font-weight: bold; font-size: 13px; }
         
         input[type="text"] { padding: 8px 24px 8px 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         input[type="text"].error { border-color: #d32f2f; background-color: #ffebee; }
         
-        .error-message { color: #d32f2f; font-size: 11px; margin-top: 3px; }
-        .success-message { color: #2e7d32; font-size: 11px; margin-top: 3px; }
+        .error-message-survey { color: #d32f2f; font-size: 11px; margin-top: 3px; }
         
         .with-arrow::after {
             content: "\25BC";
@@ -50,10 +258,10 @@
         .btn-map { background-color: #78909c; }
         .equip-tag { display: block; background: #e1f5fe; color: #0288d1; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin: 3px 0; font-weight: bold; border: 1px solid #b3e5fc; font-family: monospace; }
         
-        .alert { padding: 12px; margin: 10px 0; border-radius: 4px; font-weight: bold; }
-        .alert-success { background-color: #c8e6c9; color: #2e7d32; border: 1px solid #81c784; }
-        .alert-error { background-color: #ffcdd2; color: #c62828; border: 1px solid #ef5350; }
-        .alert-warning { background-color: #fff9c4; color: #f57f17; border: 1px solid #fbc02d; }
+        .alert-survey { padding: 12px; margin: 10px 0; border-radius: 4px; font-weight: bold; }
+        .alert-success-survey { background-color: #c8e6c9; color: #2e7d32; border: 1px solid #81c784; }
+        .alert-error-survey { background-color: #ffcdd2; color: #c62828; border: 1px solid #ef5350; }
+        .alert-warning-survey { background-color: #fff9c4; color: #f57f17; border: 1px solid #fbc02d; }
         
         .form-buttons { display: flex; gap: 10px; }
         .form-buttons button { flex: 1; }
@@ -63,115 +271,329 @@
 </head>
 <body>
 
-<datalist id="siteNameSuggestions"></datalist>
-<datalist id="techNumberSuggestions"></datalist>
-<datalist id="mediaSuggestions"></datalist>
-<datalist id="tocoSuggestions"></datalist>
-<datalist id="nmtLocationSuggestions"></datalist>
-<datalist id="muxTypeSuggestions"></datalist>
-<datalist id="muxFullNameSuggestions"></datalist>
-<datalist id="muxNeIdSuggestions"></datalist>
-<datalist id="muxIpSuggestions"></datalist>
-
-<div class="form-container">
-    <h2 style="color: #2e7d32; margin-top:0; margin-bottom: 20px;">Master Site Survey Node Entry</h2>
-    <div id="statusAlert"></div>
-    <div class="edit-mode-banner" id="editModeBanner">✏️ EDIT MODE: Updating existing record</div>
-    
-    <form id="surveyForm">
-        <div class="form-row">
-            <div class="form-group">
-                <label>Site ID *</label>
-                <input type="text" id="siteId" required placeholder="e.g. ORBRA-11">
-                <div class="error-message" id="siteIdError"></div>
-            </div>
-            <div class="form-group with-arrow">
-                <label>Technical Number</label>
-                <input type="text" id="techNumber" placeholder="e.g. TECH-4412" list="techNumberSuggestions">
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group with-arrow">
-                <label>Site Name *</label>
-                <input type="text" id="siteName" required list="siteNameSuggestions">
-                <div class="error-message" id="siteNameError"></div>
-            </div>
-            <div class="form-group with-arrow">
-                <label>Media *</label>
-                <input type="text" id="media" required value="OWN" list="mediaSuggestions">
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group with-arrow">
-                <label>TOCO Option</label>
-                <input type="text" id="toco" placeholder="Enter TOCO details" list="tocoSuggestions">
-            </div>
-            <div class="form-group with-arrow">
-                <label>NMT Location</label>
-                <input type="text" id="nmtLocation" placeholder="Enter NMT Location details" list="nmtLocationSuggestions">
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Site Base Remarks</label>
-            <input type="text" id="remarks">
+<!-- ===== LOGIN PAGE ===== -->
+<div class="login-page" id="loginPage">
+    <div class="login-container">
+        <h1>🔐 Site Survey</h1>
+        <p class="subtitle">Secure Access to Network Site Survey Matrix</p>
+        
+        <div class="alert" id="authAlert"></div>
+        
+        <!-- Sign In Form -->
+        <div id="signInForm">
+            <form onsubmit="handleSignIn(event)">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="signInEmail" required placeholder="your.email@example.com">
+                    <div class="error-message" id="signInEmailError"></div>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signInPassword" required placeholder="Enter your password">
+                    <div class="error-message" id="signInPasswordError"></div>
+                </div>
+                <div class="auth-buttons">
+                    <button type="submit" class="btn btn-signin">🔓 Sign In</button>
+                    <button type="button" class="btn btn-signup" onclick="toggleForms()">📝 Sign Up</button>
+                </div>
+            </form>
         </div>
         
-        <div class="equip-header">
-            <span>Rack Equipment Inventory Matrix</span>
-            <button type="button" class="btn-circle btn-add-row" onclick="addEquipmentRow()">+</button>
+        <!-- Sign Up Form -->
+        <div id="signUpForm" style="display: none;">
+            <form onsubmit="handleSignUp(event)">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signUpName" required placeholder="Your full name">
+                    <div class="error-message" id="signUpNameError"></div>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="signUpEmail" required placeholder="your.email@example.com">
+                    <div class="error-message" id="signUpEmailError"></div>
+                </div>
+                <div class="form-group">
+                    <label>Password (min 6 characters)</label>
+                    <input type="password" id="signUpPassword" required placeholder="Create a strong password" minlength="6">
+                    <div class="error-message" id="signUpPasswordError"></div>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="signUpPasswordConfirm" required placeholder="Re-enter password" minlength="6">
+                    <div class="error-message" id="signUpPasswordConfirmError"></div>
+                </div>
+                <div class="auth-buttons">
+                    <button type="submit" class="btn btn-signup">✅ Create Account</button>
+                    <button type="button" class="btn btn-signin" onclick="toggleForms()">🔓 Back to Sign In</button>
+                </div>
+            </form>
         </div>
-        <div id="equipmentFieldsContainer"></div>
-
-        <div class="form-buttons">
-            <button type="submit" class="btn-main btn-save">💾 Save / Update Master Database Node</button>
-            <button type="button" class="btn-main btn-cancel" id="cancelBtn" onclick="cancelEdit()" style="display:none;">❌ Cancel Edit</button>
-        </div>
-        <button type="button" class="btn-main btn-excel" onclick="exportToExcel()">📊 Export Data to Excel (.xls)</button>
-    </form>
+    </div>
 </div>
 
-<input type="text" id="tableSearch" class="search-box" onkeyup="filterTable()" placeholder="🔍 Universal Search...">
+<!-- ===== SURVEY PAGE ===== -->
+<div class="survey-page" id="surveyPage">
+    <div class="header-bar">
+        <h2>📊 Master Site Survey Node Entry</h2>
+        <div class="user-info">
+            <span>👤 Logged in as: <strong id="userEmailDisplay"></strong></span>
+            <button class="btn-logout" onclick="handleLogout()">🚪 Logout</button>
+        </div>
+    </div>
 
-<table id="dataTable">
-    <thead>
-        <tr>
-            <th>Site ID</th>
-            <th>Technical No.</th>
-            <th>Site Name</th>
-            <th>Media</th>
-            <th>TOCO</th>
-            <th>NMT Location</th>
-            <th>Location Coordinates</th>
-            <th>Logged Date/Time</th>
-            <th>Active Hardware Array Components</th>
-            <th>Remarks</th>
-            <th style="width:140px;">Operations</th>
-        </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-</table>
+    <div class="form-container">
+        <div id="statusAlert"></div>
+        <div class="edit-mode-banner" id="editModeBanner">✏️ EDIT MODE: Updating existing record</div>
+        
+        <form id="surveyForm">
+            <div class="form-row">
+                <div class="form-group-survey">
+                    <label>Site ID *</label>
+                    <input type="text" id="siteId" required placeholder="e.g. ORBRA-11">
+                    <div class="error-message-survey" id="siteIdError"></div>
+                </div>
+                <div class="form-group-survey with-arrow">
+                    <label>Technical Number</label>
+                    <input type="text" id="techNumber" placeholder="e.g. TECH-4412">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group-survey with-arrow">
+                    <label>Site Name *</label>
+                    <input type="text" id="siteName" required>
+                    <div class="error-message-survey" id="siteNameError"></div>
+                </div>
+                <div class="form-group-survey with-arrow">
+                    <label>Media *</label>
+                    <input type="text" id="media" required value="OWN">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group-survey with-arrow">
+                    <label>TOCO Option</label>
+                    <input type="text" id="toco" placeholder="Enter TOCO details">
+                </div>
+                <div class="form-group-survey with-arrow">
+                    <label>NMT Location</label>
+                    <input type="text" id="nmtLocation" placeholder="Enter NMT Location details">
+                </div>
+            </div>
+            <div class="form-group-survey">
+                <label>Site Base Remarks</label>
+                <input type="text" id="remarks">
+            </div>
+            
+            <div class="equip-header">
+                <span>Rack Equipment Inventory Matrix</span>
+                <button type="button" class="btn-circle btn-add-row" onclick="addEquipmentRow()">+</button>
+            </div>
+            <div id="equipmentFieldsContainer"></div>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn-main btn-save">💾 Save / Update</button>
+                <button type="button" class="btn-main btn-cancel" id="cancelBtn" onclick="cancelEdit()" style="display:none;">❌ Cancel</button>
+            </div>
+            <button type="button" class="btn-main btn-excel" onclick="exportToExcel()">📊 Export to Excel</button>
+        </form>
+    </div>
+
+    <input type="text" id="tableSearch" class="search-box" onkeyup="filterTable()" placeholder="🔍 Universal Search...">
+
+    <div style="max-width: 1400px; margin: 0 auto; padding: 0 20px;">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>Site ID</th>
+                    <th>Technical No.</th>
+                    <th>Site Name</th>
+                    <th>Media</th>
+                    <th>TOCO</th>
+                    <th>NMT Location</th>
+                    <th>Location Coordinates</th>
+                    <th>Logged Date/Time</th>
+                    <th>Hardware Components</th>
+                    <th>Remarks</th>
+                    <th style="width:140px;">Operations</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
 <script>
 // ============================================
-// FIREBASE CONFIG - SECURE YOUR CREDENTIALS
+// FIREBASE CONFIG
 // ============================================
-// TODO: Add Firebase Authentication & Security Rules
-// For now, this is READ/WRITE OPEN - CHANGE IMMEDIATELY
 const firebaseConfig = {
+    apiKey: "AIzaSyBk9r5_KZ6F4_9jQ5_7z8R9L0M1N2O3P4Q",
+    authDomain: "site-survey-app-afb16.firebaseapp.com",
+    projectId: "site-survey-app-afb16",
+    storageBucket: "site-survey-app-afb16.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "1:123456789:web:abcdef123456",
     databaseURL: "https://site-survey-app-afb16-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
+
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const database = firebase.database();
 
+let currentUser = null;
 let dataArray = [];
 let editKey = null;
-let isLoading = false;
 
 // ============================================
-// UTILITY FUNCTIONS
+// AUTHENTICATION FUNCTIONS
+// ============================================
+function toggleForms() {
+    const signInForm = document.getElementById('signInForm');
+    const signUpForm = document.getElementById('signUpForm');
+    signInForm.style.display = signInForm.style.display === 'none' ? 'block' : 'none';
+    signUpForm.style.display = signUpForm.style.display === 'none' ? 'block' : 'none';
+    clearAuthErrors();
+}
+
+function clearAuthErrors() {
+    document.querySelectorAll('.error-message').forEach(el => {
+        el.textContent = '';
+        el.classList.remove('show');
+    });
+    document.querySelectorAll('input').forEach(el => el.classList.remove('error'));
+}
+
+function showAuthAlert(message, type) {
+    const alert = document.getElementById('authAlert');
+    alert.textContent = message;
+    alert.className = `alert show alert-${type}`;
+    setTimeout(() => {
+        alert.classList.remove('show');
+    }, 5000);
+}
+
+function handleSignIn(event) {
+    event.preventDefault();
+    clearAuthErrors();
+    
+    const email = document.getElementById('signInEmail').value.trim();
+    const password = document.getElementById('signInPassword').value;
+    
+    if (!email || !password) {
+        showAuthAlert('❌ Please enter email and password', 'error');
+        return;
+    }
+    
+    auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+            currentUser = userCredential.user;
+            showAuthAlert(`✅ Welcome back, ${currentUser.email}!`, 'success');
+            setTimeout(() => showSurveyPage(), 1500);
+        })
+        .catch(error => {
+            let message = '❌ ';
+            if (error.code === 'auth/user-not-found') message += 'Account not found';
+            else if (error.code === 'auth/wrong-password') message += 'Incorrect password';
+            else if (error.code === 'auth/invalid-email') message += 'Invalid email';
+            else message += error.message;
+            showAuthAlert(message, 'error');
+        });
+}
+
+function handleSignUp(event) {
+    event.preventDefault();
+    clearAuthErrors();
+    
+    const name = document.getElementById('signUpName').value.trim();
+    const email = document.getElementById('signUpEmail').value.trim();
+    const password = document.getElementById('signUpPassword').value;
+    const passwordConfirm = document.getElementById('signUpPasswordConfirm').value;
+    
+    if (!name) {
+        showAuthAlert('❌ Please enter your full name', 'error');
+        return;
+    }
+    if (!email) {
+        showAuthAlert('❌ Please enter your email', 'error');
+        return;
+    }
+    if (password.length < 6) {
+        showAuthAlert('❌ Password must be at least 6 characters', 'error');
+        return;
+    }
+    if (password !== passwordConfirm) {
+        showAuthAlert('❌ Passwords do not match', 'error');
+        return;
+    }
+    
+    auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+            currentUser = userCredential.user;
+            userCredential.user.updateProfile({
+                displayName: name
+            }).then(() => {
+                showAuthAlert(`✅ Account created! Welcome, ${name}!`, 'success');
+                setTimeout(() => {
+                    showSurveyPage();
+                }, 1500);
+            });
+        })
+        .catch(error => {
+            let message = '❌ ';
+            if (error.code === 'auth/email-already-in-use') message += 'Email already registered';
+            else if (error.code === 'auth/weak-password') message += 'Password is too weak';
+            else if (error.code === 'auth/invalid-email') message += 'Invalid email address';
+            else message += error.message;
+            showAuthAlert(message, 'error');
+        });
+}
+
+function handleLogout() {
+    if (confirm('⚠️ Are you sure you want to logout?\n\nYou will need to login again to access the survey.')) {
+        auth.signOut().then(() => {
+            currentUser = null;
+            showLoginPage();
+            clearFormToDefault();
+            document.getElementById('surveyForm').reset();
+            showAuthAlert('✅ You have been logged out successfully', 'success');
+        });
+    }
+}
+
+function showLoginPage() {
+    document.getElementById('loginPage').style.display = 'block';
+    document.getElementById('surveyPage').classList.remove('active');
+    document.getElementById('signInForm').style.display = 'block';
+    document.getElementById('signUpForm').style.display = 'none';
+    clearAuthErrors();
+    document.getElementById('surveyForm').reset();
+}
+
+function showSurveyPage() {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('surveyPage').classList.add('active');
+    document.getElementById('userEmailDisplay').textContent = currentUser.email;
+}
+
+// ============================================
+// CHECK AUTH STATE ON PAGE LOAD
+// ============================================
+auth.onAuthStateChanged(user => {
+    if (user) {
+        currentUser = user;
+        showSurveyPage();
+        loadSurveyData();
+    } else {
+        currentUser = null;
+        showLoginPage();
+    }
+});
+
+// ============================================
+// SURVEY FUNCTIONS (Keep existing code)
 // ============================================
 function escapeHtml(text) {
     const map = {
@@ -186,7 +608,7 @@ function escapeHtml(text) {
 
 function showAlert(message, type = 'info') {
     const alertDiv = document.getElementById("statusAlert");
-    alertDiv.className = `alert alert-${type}`;
+    alertDiv.className = `alert-survey alert-${type}-survey`;
     alertDiv.innerHTML = message;
     alertDiv.style.display = 'block';
     setTimeout(() => {
@@ -210,20 +632,14 @@ function clearFieldError(fieldId) {
     document.getElementById(fieldId).classList.remove('error');
 }
 
-// ============================================
-// FORM VALIDATION
-// ============================================
 function validateForm() {
     let isValid = true;
-    
-    // Clear previous errors
     clearFieldError('siteId');
     clearFieldError('siteName');
     
     const siteId = document.getElementById("siteId").value.trim();
     const siteName = document.getElementById("siteName").value.trim();
     
-    // Validate Site ID
     if (!siteId) {
         showFieldError('siteId', 'Site ID is required');
         isValid = false;
@@ -232,7 +648,6 @@ function validateForm() {
         isValid = false;
     }
     
-    // Validate Site Name
     if (!siteName) {
         showFieldError('siteName', 'Site Name is required');
         isValid = false;
@@ -244,25 +659,21 @@ function validateForm() {
     return isValid;
 }
 
-// ============================================
-// EQUIPMENT ROW MANAGEMENT
-// ============================================
 function addEquipmentRow(typeVal = '', nameVal = '', neIdVal = '', ipVal = '') {
     const container = document.getElementById("equipmentFieldsContainer");
     const rowDiv = document.createElement("div");
     rowDiv.className = "equip-row";
     
-    // Sanitize input values
     typeVal = escapeHtml(typeVal);
     nameVal = escapeHtml(nameVal);
     neIdVal = escapeHtml(neIdVal);
     ipVal = escapeHtml(ipVal);
     
     rowDiv.innerHTML = `
-        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-type" style="width:100%;" placeholder="MUX Type" value="${typeVal}" list="muxTypeSuggestions" maxlength="50"></div>
-        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-fullname" style="width:100%;" placeholder="MUX Full Name" value="${nameVal}" list="muxFullNameSuggestions" maxlength="100"></div>
-        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-neid" style="width:100%;" placeholder="MUX NE ID" value="${neIdVal}" list="muxNeIdSuggestions" maxlength="50"></div>
-        <div class="form-group with-arrow" style="flex:1;"><input type="text" class="eq-ip" style="width:100%;" placeholder="MUX IP" value="${ipVal}" list="muxIpSuggestions" maxlength="50"></div>
+        <div class="form-group-survey with-arrow" style="flex:1;"><input type="text" class="eq-type" style="width:100%;" placeholder="MUX Type" value="${typeVal}" maxlength="50"></div>
+        <div class="form-group-survey with-arrow" style="flex:1;"><input type="text" class="eq-fullname" style="width:100%;" placeholder="MUX Full Name" value="${nameVal}" maxlength="100"></div>
+        <div class="form-group-survey with-arrow" style="flex:1;"><input type="text" class="eq-neid" style="width:100%;" placeholder="MUX NE ID" value="${neIdVal}" maxlength="50"></div>
+        <div class="form-group-survey with-arrow" style="flex:1;"><input type="text" class="eq-ip" style="width:100%;" placeholder="MUX IP" value="${ipVal}" maxlength="50"></div>
         <button type="button" class="btn-circle btn-del-row" onclick="removeEquipmentRow(this)">-</button>
     `;
     container.appendChild(rowDiv);
@@ -280,10 +691,7 @@ function removeEquipmentRow(buttonElement) {
     }
 }
 
-// ============================================
-// AUTO-FILL ON SITE ID MATCH
-// ============================================
-document.getElementById("siteId").addEventListener("blur", function() {
+document.getElementById("siteId")?.addEventListener("blur", function() {
     if (editKey) return; 
     const value = this.value.trim().toUpperCase();
     if (!value) return;
@@ -310,7 +718,6 @@ function populateFormFields(item) {
     document.getElementById("nmtLocation").value = item.nmtLocation || '';
     document.getElementById("remarks").value = item.remarks || '';
     
-    // Show edit mode banner and cancel button
     document.getElementById("editModeBanner").style.display = 'block';
     document.getElementById("cancelBtn").style.display = 'block';
     
@@ -328,125 +735,69 @@ function populateFormFields(item) {
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
-// ============================================
-// AUTOCOMPLETE SUGGESTIONS
-// ============================================
-function rebuildDataSuggestions(allSites) {
-    const siteNameSet = new Set();
-    const techNumberSet = new Set();
-    const mediaSet = new Set();
-    const tocoSet = new Set();
-    const nmtLocationSet = new Set();
-    const muxTypeSet = new Set();
-    const muxFullNameSet = new Set();
-    const muxNeIdSet = new Set();
-    const muxIpSet = new Set();
+function loadSurveyData() {
+    if (!currentUser) return;
+    
+    database.ref('site_surveys').on('value', (snapshot) => {
+        dataArray = [];
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+        
+        if (snapshot.exists()) {
+            snapshot.forEach((childSnapshot) => {
+                const item = childSnapshot.val();
+                const key = childSnapshot.key;
+                dataArray.push({ firebaseKey: key, ...item });
 
-    allSites.forEach(item => {
-        if (item.siteName) siteNameSet.add(item.siteName.trim());
-        if (item.techNumber) techNumberSet.add(item.techNumber.trim());
-        if (item.media) mediaSet.add(item.media.trim());
-        if (item.toco) tocoSet.add(item.toco.trim());
-        if (item.nmtLocation) nmtLocationSet.add(item.nmtLocation.trim());
-        if (item.equipments) {
-            item.equipments.forEach(eq => {
-                if (eq.type) muxTypeSet.add(eq.type.trim());
-                if (eq.name) muxFullNameSet.add(eq.name.trim());
-                if (eq.neId) muxNeIdSet.add(eq.neId.trim());
-                if (eq.ip) muxIpSet.add(eq.ip.trim());
+                let equipDetailsLayout = "";
+                if (item.equipments && item.equipments.length > 0) {
+                    item.equipments.forEach(eq => {
+                        const type = escapeHtml(eq.type || '-');
+                        const name = escapeHtml(eq.name || '-');
+                        const neId = escapeHtml(eq.neId || '-');
+                        const ip = escapeHtml(eq.ip || '-');
+                        equipDetailsLayout += `<span class="equip-tag">🔹 [${type}] ${name} | NEID: ${neId} ➡️ ${ip}</span>`;
+                    });
+                } else {
+                    equipDetailsLayout = `<span style="color:#999; font-style:italic;">No equipment logs</span>`;
+                }
+
+                const siteId = escapeHtml(item.siteId || '');
+                const techNumber = escapeHtml(item.techNumber || '-');
+                const siteName = escapeHtml(item.siteName || '');
+                const media = escapeHtml(item.media || '');
+                const toco = escapeHtml(item.toco || '-');
+                const nmtLocation = escapeHtml(item.nmtLocation || '-');
+                const lat = escapeHtml(String(item.lat || '0'));
+                const long = escapeHtml(String(item.long || '0'));
+                const date = escapeHtml(item.date || '');
+                const time = escapeHtml(item.time || '');
+                const remarks = escapeHtml(item.remarks || '');
+                const mapUrl = escapeHtml(item.map || '#');
+
+                let row = `<tr>
+                    <td style="font-weight:bold; color:#1b5e20;">${siteId}</td>
+                    <td style="font-weight:bold;">${techNumber}</td>
+                    <td>${siteName}</td>
+                    <td>${media}</td>
+                    <td style="font-weight:bold; color:#0288d1;">${toco}</td>
+                    <td style="font-weight:bold; color:#e65100;">${nmtLocation}</td>
+                    <td style="font-family:monospace; font-size:12px;">${lat}, ${long}</td>
+                    <td style="font-size:11px; color:#555;">${date}<br>${time}</td>
+                    <td>${equipDetailsLayout}</td>
+                    <td><small>${remarks}</small></td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="runRowEdit('${key}')">Edit</button>
+                        <button class="btn-action btn-del" onclick="deleteMasterRecord('${key}')">Del</button>
+                        <a href="${mapUrl}" target="_blank" class="btn-action btn-map" style="text-align:center;">Map</a>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
             });
         }
     });
-
-    updateDatalistOptions("siteNameSuggestions", siteNameSet);
-    updateDatalistOptions("techNumberSuggestions", techNumberSet);
-    updateDatalistOptions("mediaSuggestions", mediaSet);
-    updateDatalistOptions("tocoSuggestions", tocoSet);
-    updateDatalistOptions("nmtLocationSuggestions", nmtLocationSet);
-    updateDatalistOptions("muxTypeSuggestions", muxTypeSet);
-    updateDatalistOptions("muxFullNameSuggestions", muxFullNameSet);
-    updateDatalistOptions("muxNeIdSuggestions", muxNeIdSet);
-    updateDatalistOptions("muxIpSuggestions", muxIpSet);
 }
 
-function updateDatalistOptions(elementId, valueSet) {
-    const dl = document.getElementById(elementId);
-    dl.innerHTML = "";
-    valueSet.forEach(val => {
-        if (val) {
-            let opt = document.createElement("option");
-            opt.value = val;
-            dl.appendChild(opt);
-        }
-    });
-}
-
-// ============================================
-// FIREBASE DATA LISTENER
-// ============================================
-database.ref('site_surveys').on('value', (snapshot) => {
-    dataArray = [];
-    const tbody = document.getElementById("tableBody");
-    tbody.innerHTML = "";
-    
-    if (snapshot.exists()) {
-        snapshot.forEach((childSnapshot) => {
-            const item = childSnapshot.val();
-            const key = childSnapshot.key;
-            dataArray.push({ firebaseKey: key, ...item });
-
-            let equipDetailsLayout = "";
-            if (item.equipments && item.equipments.length > 0) {
-                item.equipments.forEach(eq => {
-                    const type = escapeHtml(eq.type || '-');
-                    const name = escapeHtml(eq.name || '-');
-                    const neId = escapeHtml(eq.neId || '-');
-                    const ip = escapeHtml(eq.ip || '-');
-                    equipDetailsLayout += `<span class="equip-tag">🔹 [${type}] ${name} | NEID: ${neId} ➡️ ${ip}</span>`;
-                });
-            } else {
-                equipDetailsLayout = `<span style="color:#999; font-style:italic;">No equipment logs</span>`;
-            }
-
-            const siteId = escapeHtml(item.siteId || '');
-            const techNumber = escapeHtml(item.techNumber || '-');
-            const siteName = escapeHtml(item.siteName || '');
-            const media = escapeHtml(item.media || '');
-            const toco = escapeHtml(item.toco || '-');
-            const nmtLocation = escapeHtml(item.nmtLocation || '-');
-            const lat = escapeHtml(String(item.lat || '0'));
-            const long = escapeHtml(String(item.long || '0'));
-            const date = escapeHtml(item.date || '');
-            const time = escapeHtml(item.time || '');
-            const remarks = escapeHtml(item.remarks || '');
-            const mapUrl = escapeHtml(item.map || '#');
-
-            let row = `<tr>
-                <td style="font-weight:bold; color:#1b5e20;">${siteId}</td>
-                <td style="font-weight:bold;">${techNumber}</td>
-                <td>${siteName}</td>
-                <td>${media}</td>
-                <td style="font-weight:bold; color:#0288d1;">${toco}</td>
-                <td style="font-weight:bold; color:#e65100;">${nmtLocation}</td>
-                <td style="font-family:monospace; font-size:12px;">${lat}, ${long}</td>
-                <td style="font-size:11px; color:#555;">${date}<br>${time}</td>
-                <td>${equipDetailsLayout}</td>
-                <td><small>${remarks}</small></td>
-                <td>
-                    <button class="btn-action btn-edit" onclick="runRowEdit('${key}')">Edit</button>
-                    <button class="btn-action btn-del" onclick="deleteMasterRecord('${key}')">Del</button>
-                    <a href="${mapUrl}" target="_blank" class="btn-action btn-map" style="text-align:center;">Map</a>
-                </td>
-            </tr>`;
-            tbody.innerHTML += row;
-        });
-        rebuildDataSuggestions(dataArray);
-    }
-});
-
-// ============================================
-// GPS LOCATION FETCHING
-// ============================================
 function fetchGPS() {
     return new Promise((resolve) => {
         if (!navigator.geolocation) {
@@ -472,19 +823,14 @@ function fetchGPS() {
     });
 }
 
-// ============================================
-// FORM SUBMISSION
-// ============================================
-document.getElementById("surveyForm").addEventListener("submit", async function(e) {
+document.getElementById("surveyForm")?.addEventListener("submit", async function(e) {
     e.preventDefault();
     
-    // Validate form
     if (!validateForm()) {
         showAlert('❌ Please fix the errors in the form', 'error');
         return;
     }
     
-    isLoading = true;
     const submitBtn = document.querySelector('.btn-save');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '⏳ Saving...';
@@ -521,28 +867,28 @@ document.getElementById("surveyForm").addEventListener("submit", async function(
             time: ts.toLocaleTimeString(),
             map: `https://www.google.com/maps?q=${gps.latitude},${gps.longitude}`,
             equipments: equipmentListArray,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
+            userId: currentUser.uid,
+            userEmail: currentUser.email
         };
 
         const databaseRefTarget = editKey ? database.ref('site_surveys/' + editKey) : database.ref('site_surveys').push();
         
         databaseRefTarget.set(surveyNodePackage, (err) => {
-            isLoading = false;
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '💾 Save / Update Master Database Node';
+            submitBtn.innerHTML = '💾 Save / Update';
             
             if (err) {
                 showAlert(`❌ Error saving data: ${err.message}`, 'error');
                 console.error('Firebase error:', err);
             } else {
-                showAlert('✅ Data saved successfully to Cloud!', 'success');
+                showAlert('✅ Data saved successfully!', 'success');
                 clearFormToDefault();
             }
         });
     } catch (error) {
-        isLoading = false;
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '💾 Save / Update Master Database Node';
+        submitBtn.innerHTML = '💾 Save / Update';
         showAlert(`❌ Error: ${error.message}`, 'error');
         console.error('Submit error:', error);
     }
@@ -590,9 +936,6 @@ function clearFormToDefault() {
     addEquipmentRow(); 
 }
 
-// ============================================
-// TABLE SEARCH/FILTER
-// ============================================
 function filterTable() {
     const sQuery = document.getElementById("tableSearch").value.toUpperCase().trim();
     const rows = document.querySelectorAll("#tableBody tr");
@@ -609,9 +952,6 @@ function filterTable() {
     }
 }
 
-// ============================================
-// EXCEL EXPORT
-// ============================================
 function exportToExcel() {
     try {
         if (dataArray.length === 0) {
@@ -662,9 +1002,6 @@ function exportToExcel() {
     }
 }
 
-// ============================================
-// INITIALIZATION
-// ============================================
 clearFormToDefault();
 </script>
 </body>
